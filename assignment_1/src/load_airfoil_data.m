@@ -4,6 +4,9 @@ function [aoa, cl_mat, cd_mat] = load_airfoil_data(filenames)
 % airfoil t/c
 % aoa ->  matrix (105x6): by columns angle used to define the airfoil
 %         parameters
+%
+%        ATTENTION: ANGLES ARE IMMEDIATELY CONVERTED IN RADIANS
+%
 % cl_mat -> matrix (105x6): by columns cl coefficient for differen angle of
 %           attack
 % cd_mat -> matrix (105x6): by columns cl coefficient for differen angle of
@@ -17,7 +20,7 @@ cd_mat = zeros(105,6);
 
 for i = 1:6
   mat = readmatrix(filenames(i));
-  aoa(:,i) = mat(:,1);
+  aoa(:,i) = deg2rad(mat(:,1)); % conversion from deg to rad
   cl_mat(:,i) = mat(:,2);
   cd_mat(:,i) = mat(:,3);
 end

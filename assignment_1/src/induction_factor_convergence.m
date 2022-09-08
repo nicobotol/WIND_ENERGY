@@ -1,4 +1,4 @@
-function [a, a_prime, ct, cn, phi] = induction_factor_convergence(a, a_prime, R, r, lambda, beta, Theta_p, cd, cl, c, B, fake_zero, i_max)
+function [a, a_prime, ct, cn, phi] = induction_factor_convergence(a, a_prime, R, r, lambda, beta, Theta_p, cd, cl, c, B, sigma, fake_zero, i_max)
 % This function performs the calculations to make the induction functions
 % converge
 % a -> (INPUT) initial guess of axial induction factor
@@ -26,7 +26,6 @@ for i = 1:i_max
   a_prime_old = a_prime;
   
   % update a and a_prime
-  sigma = sigma_function(c, B, r);
   [a, a_prime, ct, cn, phi] = induction_factor(a, a_prime, R, r, lambda, beta, Theta_p, cd, cl, sigma, B);
   
   % compute the error

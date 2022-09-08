@@ -1,0 +1,12 @@
+function [cl_mat, cd_mat] = load_matrix()
+%UNTITLED10 Summary of this function goes here
+%   Detailed explanation goes here
+
+filenames = ["airfoil_data\cylinder", "airfoil_data\FFA-W3-241", "airfoil_data\FFA-W3-241",];
+
+for i = 1:2
+  mat = readmatrix(filenames(i));
+  cl_mat(:,i) = mat(:,2);
+  cd_mat(:,i) = mat(:,3);
+end
+end

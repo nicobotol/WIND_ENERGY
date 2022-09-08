@@ -1,5 +1,10 @@
 function [sigma] = sigma_function(c, B, r)
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
+% function to compute the solidty correction factor
+% sigma -> solidity correction factor
+% c -> chord length (m)
+% B -> number of blades (#)
+% r -> actual radius (m)
+
   sigma = (c*B) / (2*pi*r);
+
 end

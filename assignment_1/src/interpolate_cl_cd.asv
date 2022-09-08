@@ -1,15 +1,8 @@
 function [cl, cd] = interpolate_cl_cd(aoa, cl_mat, cd_mat, thick_prof, alpha, thick)
 % This function interpolates the data of cd and cl from the .txt file.
-% cl -> cl coefficient
-% cd -> cd coefficient
-% aoa -> angle of attack (loaded from the .txt file)
-% cl_mat -> cl matrix (loaded from the .txt file)
-% cd_mat -> cd matrix (loaded from the .txt file)
-% thick_prof -> vector of thickness
-% alpha -> angle of attack (rad)
-% thick -> t/c ratio
+% The alpha -> angle of attack
+% the t/c ratio shuold be provided as input
 
-% initialize the vectors
 clthick = zeros(1,6);
 cdthick = zeros(1,6);
 

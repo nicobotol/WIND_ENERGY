@@ -8,8 +8,8 @@ function [r, c, beta, thick] = load_blade_data(blade_filename)
 
 mat = readmatrix(blade_filename);
 r(:) = mat(:, 1);
-c(:) = mat(:, 2);
-beta(:) = mat(:, 3);
+beta(:) = deg2rad(mat(:, 2));
+c(:) = mat(:, 3);
 thick(:) = mat(:, 4);
 
 end

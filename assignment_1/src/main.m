@@ -49,8 +49,8 @@ for l=1:lambda_item  % loop over lambda
   for t=1:pitch_item % loop over pitch
     Theta_p = pitch_vector(t); % local pitch angle
     clearvars a a_prime ct 
-    cp_partial = zeros(r_item_no_tip, 1);
-    cT_partial = zeros(r_item_no_tip, 1);
+    cp_partial = zeros(1, r_item_no_tip);
+    cT_partial = zeros(1, r_item_no_tip);
     for i=1:r_item_no_tip % loop over the blade positions 
       r = r_vector(i);
       beta = beta_vector(i);
@@ -68,7 +68,7 @@ for l=1:lambda_item  % loop over lambda
     % integrate the partial results to get cp 
     pos = (l-1)*pitch_item + t;
 
-    cP_cT_mat(3, pos) = lambda*B/A * trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
+    cP_cT_mat(3, pos) = lambda*B/(A*R) * trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
     cP_cT_mat(4, pos) = B / A * trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial);
     cP_cT_mat(1, pos) = lambda;
     cP_cT_mat(2, pos) = Theta_p;

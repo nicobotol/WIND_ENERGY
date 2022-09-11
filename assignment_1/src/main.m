@@ -2,6 +2,8 @@ clear all
 close all
 clc
 
+% ALL THE VECTOR SHOULD BE ROW VECTORS
+
 % % load the physical parameters from the file "parameters.m"
 % parameters
 % 
@@ -34,11 +36,11 @@ parameters
 % load the blade data from "bladedat.txt"
 [r_vector, c_vector, beta_vector, thick_vector] = load_blade_data(blade_filename);
 
-r_item = size(r_vector,1);
+r_item = size(r_vector, 2);
 
 lambda_vector = linspace(lambda_range(1), lambda_range(2), lambda_item); % vector of lambda equally distributed in the range
 pitch_vector = linspace(pitch_range(1), pitch_range(2), pitch_item); % vector of pitch equally distributed in the range
-cp = zeros(3, pitch_item*lambda_item); % cubic matriz for store the cp value
+cp = zeros(3, pitch_item*lambda_item); % matrix for store the couple (lambda, Theta) and the corresponding cp value
 
 for l=1:lambda_item  % loop over lambda
   lambda = lambda_vector(l);
@@ -46,12 +48,12 @@ for l=1:lambda_item  % loop over lambda
     Theta_p = pitch_vector(t); % local pitch angle
     clearvars a a_prime ct 
     cp_partial = zeros(r_item, 1);
-    for i=1:r_item %loop over the blade positions  ATTENTION TO NOT BE TOO CLOSE TO TIP
+    for i=1:r_item % loop over the blade positions  ATTENTION TO NOT BE TOO CLOSE TO TIP
       r = r_vector(i);
       beta = beta_vector(i);
       thick = thick_vector(i);
       c = c_vector(i);
-      sigma = sigma_function(c(i), B(i), r(i));
+      sigma = sigma_function(c, B, r);
 
       % compute the a and a_prime with the iterative method
       [a, a_prime, ct, ~, ~] = induction_factor_convergence(a_guess, a_prime_guess, R, r, lambda, beta, Theta_p, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, thick, fake_zero, i_max);
@@ -59,7 +61,6 @@ for l=1:lambda_item  % loop over lambda
       cp_partial(i) = r * ((1 - a)^2 + (lambda*r/R)^2*(1 + a_prime))*c*ct;
 
     end % stop looping over blade position r
-
     % integrate the partial results to get cp 
     pos = (l-1)*pitch_item + t;
 
@@ -71,18 +72,35 @@ end % stop looping over lambda
 
 
 % plot the results
-figure(1)
-legend_name = strings(1, lambda_item);
+cp_vs_pitch = figure('Position', get(0, 'Screensize'));
+legend_name_cp_vs_pitch = strings(1, lambda_item);
 for l=1:lambda_item
-    set = [1:1:lambda_item] + (l - 1)*lambda_item;
-    plot(rad2deg(cp(2,set)), cp(3,set))
-    legend_name(l) = strcat("\lambda = ", num2str(lambda_vector(l)));
-    hold on
+  set = [1:1:pitch_item] + (l - 1)*pitch_item;
+  plot(rad2deg(cp(2,set)), cp(3,set))
+  legend_name_cp_vs_pitch(l) = strcat("\lambda = ", num2str(lambda_vector(l)));
+  hold on
 end
 ylabel('cP')
 xlabel('\Theta_P')
-legend(legend_name)
+legend(legend_name_cp_vs_pitch)
+title('cP as function of the pitch angle')
 hold off
+
+cp_vs_lambda = figure('Position', get(0, 'Screensize'));
+legend_name_cp_vs_lambda = strings(1, pitch_item);
+for p=1:pitch_item
+  set2 = [1:pitch_item:size(cp,2)-pitch_item+1] + (p - 1);
+  plot(cp(1,set2), cp(3,set2))
+  legend_name_cp_vs_lambda(p) = strcat("\Theta = ", num2str(rad2deg(pitch_vector(p))));
+  hold on
+end
+ylabel('cP')
+xlabel('\lambda')
+legend(legend_name_cp_vs_lambda)
+title('cP as function of \lambda')
+hold off
+
+
 
 % procedue to create a matrix of cP as function of lamda and theta
 %

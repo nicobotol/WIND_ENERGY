@@ -38,47 +38,44 @@ parameters
 [r_vector, c_vector, beta_vector, thick_vector] = load_blade_data(blade_filename);
 
 r_item = size(r_vector, 2); % number of cross sections along the blade
-r_item_no_tip = r_item - 1; % numer of cross section to take into account
 
 lambda_vector = linspace(lambda_range(1), lambda_range(2), lambda_item); % vector of lambda equally distributed in the range
 pitch_vector = linspace(pitch_range(1), pitch_range(2), pitch_item); % vector of pitch equally distributed in the range
-cP_cT_mat = zeros(4, pitch_item*lambda_item); % matrix for store the couple (lambda, Theta) and the corresponding cp and cn values
+cp = zeros(3, pitch_item*lambda_item); % matrix for store the couple (lambda, Theta) and the corresponding cp value
 
 for l=1:lambda_item  % loop over lambda
   lambda = lambda_vector(l);
   for t=1:pitch_item % loop over pitch
-    Theta_p = pitch_vector(t); % local pitch angle
+    Theta_p = pitch_vector(t); % pitch angle
     clearvars a a_prime ct 
-    cp_partial = zeros(r_item_no_tip, 1);
-    cT_partial = zeros(r_item_no_tip, 1);
-    for i=1:r_item_no_tip % loop over the blade positions 
+    cp_partial = zeros(1, r_item);
+    %a = zeros(1, r_item);
+    %a_prime = zeros(1, r_item);
+    for i=1:r_item % loop over the blade positions  ATTENTION TO NOT BE TOO CLOSE TO TIP
       r = r_vector(i);
       beta = beta_vector(i);
       thick = thick_vector(i);
       c = c_vector(i);
+      
       sigma = sigma_function(c, B, r);
 
       % compute the a and a_prime with the iterative method
-      [a, a_prime, ct, cn, ~] = induction_factor_convergence(a_guess, a_prime_guess, R, r, lambda, beta, Theta_p, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, thick, fake_zero, i_max);
+      [a, a_prime, ct, ~, ~] = induction_factor_convergence(a_guess, a_prime_guess, R, r, lambda, beta, Theta_p, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, thick, fake_zero, i_max);
       
-      cp_partial(i) = r*((1 - a)^2 + (lambda*r/R*(1 + a_prime))^2)*c*ct;
-      cT_partial(i) = ((1 - a)^2 + (lambda*r/R*(1 + a_prime))^2)*c*cn;
-
+      cp_partial(i) = r * ((1 - a)^2 + (lambda*r/R*(1 + a_prime))^2)*c*ct;
+      
     end % stop looping over blade position r
     % integrate the partial results to get cp 
     pos = (l-1)*pitch_item + t;
-
-    cP_cT_mat(3, pos) = lambda*B/A * trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
-    cP_cT_mat(4, pos) = B / A * trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial);
-    cP_cT_mat(1, pos) = lambda;
-    cP_cT_mat(2, pos) = Theta_p;
+%     a_prime
+%     a
+%     cp_partial
+%     pause
+    cp(3, pos) = lambda*B/A * trapezoidal_integral(r_vector, cp_partial);
+    cp(1, pos) = lambda;
+    cp(2, pos) = Theta_p;
   end % stop looping over pitch Theta_p
 end % stop looping over lambda
-
-% optimal lambda
-[cp_max, cp_max_pos] = max(cP_cT_mat(3,:));
-lambda_opt = cP_cT_mat(1, cp_max_pos);
-Theta_p_opt = cP_cT_mat(2, cp_max_pos);
 
 %%
 % plot the results
@@ -86,7 +83,7 @@ cp_vs_pitch = figure('Position', get(0, 'Screensize'));
 legend_name_cp_vs_pitch = strings(1, lambda_item);
 for l=1:lambda_item
   set = [1:1:pitch_item] + (l - 1)*pitch_item;
-  plot(rad2deg(cP_cT_mat(2,set)), cP_cT_mat(3,set))
+  plot(rad2deg(cp(2,set)), cp(3,set))
   legend_name_cp_vs_pitch(l) = strcat("\lambda = ", num2str(lambda_vector(l)));
   hold on
 end
@@ -99,8 +96,8 @@ hold off
 cp_vs_lambda = figure('Position', get(0, 'Screensize'));
 legend_name_cp_vs_lambda = strings(1, pitch_item);
 for p=1:pitch_item
-  set2 = [1:pitch_item:size(cP_cT_mat,2)-pitch_item+1] + (p - 1);
-  plot(cP_cT_mat(1,set2), cP_cT_mat(3,set2))
+  set2 = [1:pitch_item:size(cp,2)-pitch_item+1] + (p - 1);
+  plot(cp(1,set2), cp(3,set2))
   legend_name_cp_vs_lambda(p) = strcat("\Theta = ", num2str(rad2deg(pitch_vector(p))));
   hold on
 end
@@ -110,41 +107,7 @@ legend(legend_name_cp_vs_lambda)
 title('cP as function of \lambda')
 hold off
 
-% plot the results
-cT_vs_pitch = figure('Position', get(0, 'Screensize'));
-legend_name_cp_vs_pitch = strings(1, lambda_item);
-for l=1:lambda_item
-  set = [1:1:pitch_item] + (l - 1)*pitch_item;
-  plot(rad2deg(cP_cT_mat(2,set)), cP_cT_mat(4,set))
-  legend_name_cp_vs_pitch(l) = strcat("\lambda = ", num2str(lambda_vector(l)));
-  hold on
-end
-ylabel('cT')
-xlabel('\Theta_P')
-legend(legend_name_cp_vs_pitch)
-title('cT as function of the pitch angle')
-hold off
 
-cT_vs_lambda = figure('Position', get(0, 'Screensize'));
-legend_name_cp_vs_lambda = strings(1, pitch_item);
-for p=1:pitch_item
-  set2 = [1:pitch_item:size(cP_cT_mat,2)-pitch_item+1] + (p - 1);
-  plot(cP_cT_mat(1,set2), cP_cT_mat(4,set2))
-  legend_name_cp_vs_lambda(p) = strcat("\Theta = ", num2str(rad2deg(pitch_vector(p))));
-  hold on
-end
-ylabel('cT')
-xlabel('\lambda')
-legend(legend_name_cp_vs_lambda)
-title('cT as function of \lambda')
-hold off
-
-
-cP_vs_Theta_p_vs_pitch = figure('Position', get(0, 'Screensize'));
-plot3( cP_cT_mat(1,:), cP_cT_mat(2,:), cP_cT_mat(3,:), 'o')
-xlabel('lambda')
-ylabel('\Theta_p')
-zlabel('cP')
 
 % procedue to create a matrix of cP as function of lamda and theta
 %
@@ -166,8 +129,12 @@ zlabel('cP')
 
 %% QUESTION 2
 
+% optimal lambda
+[cp_max, cp_max_pos] = max(cp(3,:));
+lambda_opt = cp(1, cp_max_pos);
+Theta_p_opt = cp(2, cp_max_pos);
 % rated velocity
-V0_rated = (P_rated / (0.5*cp_max*rho*A) )^(1/3); % rated wind velocity (m/s)
+V0_rated = (P_rated / (0.5*cp_max/100*rho*A) )^(1/3); % rated wind velocity (m/s)
 omega_max = V0_rated * lambda_opt / R;
 
 V0_step = (V0_rated - V0_cutin) / (V0_item - 1);
@@ -181,14 +148,10 @@ xlabel("Wind velocity (m/s)")
 ylabel("\omega (rad/s)")
 title("Rotational speed as function of wind velocity")
 
-
 %% QUESTION 3
 % first part of the question
+Theta_p = Theta_p_opt;
 
-F = scatteredInterpolant(cP_cT_mat(3,:)', cP_cT_mat(1,:)', cP_cT_mat(2,:)');
-rad2deg(F(38, 10))
-
-%%
 % second part of the question 
 P = size(1, V0_item); % initialize vector of power
 T = size(1, V0_item); % initialize vector of thrust

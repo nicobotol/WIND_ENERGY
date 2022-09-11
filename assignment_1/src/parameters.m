@@ -14,9 +14,10 @@ P_rated = 10.64e6; % rated power (W)
 lambda_range = [5 10]; % range in within look for optimal lambda
 pitch_range = [deg2rad(-2) deg2rad(5)]; % range in within look for optimal picth angle
 lambda_item = 10; % number of divisions of lambda range
-pitch_item = 9; % number of divisions of pitch range
+pitch_item = 10; % number of divisions of pitch range
 
-V0_item = 20; % number of divison for the omega plot in question 2
+V0_item = 20; % number of divison for the omega plot in Q2
+V0_cut_in_out_item = 30; % number of division for velocity vector in Q3
 
 %V0 = 8;
 %omega = 2.61;

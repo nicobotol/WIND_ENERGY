@@ -80,7 +80,13 @@ end % stop looping over lambda
 lambda_opt = cP_cT_mat(1, cp_max_pos);
 Theta_p_opt = cP_cT_mat(2, cp_max_pos);
 
+disp_lambda = strcat('\lambda corresponding to max cP is \lambda=', num2str(lambda_opt));
+disp_Theta_p = strcat('Pitch corresponding to max cP is \Theta_p=', num2str(rad2deg(Theta_p_opt)));
+disp(disp_lambda)
+disp(disp_Theta_p)
+
 %%
+close all
 % plot the results
 cp_vs_pitch = figure('Position', get(0, 'Screensize'));
 legend_name_cp_vs_pitch = strings(1, lambda_item);
@@ -101,7 +107,7 @@ legend_name_cp_vs_lambda = strings(1, pitch_item);
 for p=1:pitch_item
   set2 = [1:pitch_item:size(cP_cT_mat,2)-pitch_item+1] + (p - 1);
   plot(cP_cT_mat(1,set2), cP_cT_mat(3,set2))
-  legend_name_cp_vs_lambda(p) = strcat("\Theta = ", num2str(rad2deg(pitch_vector(p))));
+  legend_name_cp_vs_lambda(p) = strcat("\Theta = ", num2str(rad2deg(pitch_vector(p))),"°");
   hold on
 end
 ylabel('cP')
@@ -130,7 +136,7 @@ legend_name_cp_vs_lambda = strings(1, pitch_item);
 for p=1:pitch_item
   set2 = [1:pitch_item:size(cP_cT_mat,2)-pitch_item+1] + (p - 1);
   plot(cP_cT_mat(1,set2), cP_cT_mat(4,set2))
-  legend_name_cp_vs_lambda(p) = strcat("\Theta = ", num2str(rad2deg(pitch_vector(p))));
+  legend_name_cp_vs_lambda(p) = strcat("\Theta = ", num2str(rad2deg(pitch_vector(p))), "°");
   hold on
 end
 ylabel('cT')
@@ -141,8 +147,8 @@ hold off
 
 
 cP_vs_Theta_p_vs_pitch = figure('Position', get(0, 'Screensize'));
-plot3( cP_cT_mat(1,:), cP_cT_mat(2,:), cP_cT_mat(3,:), 'o')
-xlabel('lambda')
+plot3( cP_cT_mat(1,:), rad2deg(cP_cT_mat(2,:)), cP_cT_mat(3,:), 'o')
+xlabel('\lambda')
 ylabel('\Theta_p')
 zlabel('cP')
 
@@ -170,6 +176,11 @@ zlabel('cP')
 V0_rated = (P_rated / (0.5*cp_max*rho*A) )^(1/3); % rated wind velocity (m/s)
 omega_max = V0_rated * lambda_opt / R;
 
+disp_V = strcat('The rated velocity V0 is V0=', num2str(V0_rated), ' (m/s)' );
+disp_omega_max = strcat('The maximum rotational speed is \omega=', num2str(omega_max), ' (rad/s)' );
+disp(disp_V)
+disp(disp_omega_max)
+
 V0_step = (V0_rated - V0_cutin) / (V0_item - 1);
 V0_vector = [V0_cutin: V0_step: V0_rated];
 %V0_vector = linespace(V0_cutin, V0_rated, V0_item);
@@ -185,8 +196,38 @@ title("Rotational speed as function of wind velocity")
 %% QUESTION 3
 % first part of the question
 
-F = scatteredInterpolant(cP_cT_mat(3,:)', cP_cT_mat(1,:)', cP_cT_mat(2,:)');
-rad2deg(F(38, 10))
+% Method 1: Interpolate the 3d plot and look for the data
+% F = scatteredInterpolant(cP_cT_mat(3,:)', cP_cT_mat(1,:)', cP_cT_mat(2,:)'); %(cP, lambda, Theta_p)
+% rad2deg(F(0.42, 9.4))
+
+% Method 2: look in the table of values
+% V0 = 20;
+% lambda = omega_max * R / V0;
+% cP = P_rated / (0.5*rho*V0^3*A);
+
+% Method 3: interpolate with a polynomial
+V0_vector_cut_in_out = linspace(V0_cutin, V0_cut_out, V0_cut_in_out_item);
+for v=1:V0_cut_in_out_item % loop over differnet velocities
+  % chose a velocity
+  V0_e3 = V0_vector_cut_in_out(v);
+  
+  % compute lambda
+  if V0_e3 < V0_rated
+    lambda = lambda_opt;
+    omega_e3 = V0_e3 * lambda / R;
+  else
+    omega_e3 = omega_max;
+    lambda = omega_e3 * R / V0_e3;
+  end
+
+  % chose Theta_p
+  P = zeros(1, pitch_item);
+  for p = 1:pitch_item %loop over different pitch
+    Theta_p_e3 = pitch_vector(p);
+    P(p) = 
+  end
+end
+ 
 
 %%
 % second part of the question 

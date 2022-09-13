@@ -51,20 +51,24 @@ for l=1:lambda_item  % loop over lambda
     clearvars a a_prime ct 
     cp_partial = zeros(1, r_item_no_tip);
     cT_partial = zeros(1, r_item_no_tip);
-    for i=1:r_item_no_tip % loop over the blade positions 
-      r = r_vector(i);
-      beta = beta_vector(i);
-      thick = thick_vector(i);
-      c = c_vector(i);
-      sigma = sigma_function(c, B, r);
 
-      % compute the a and a_prime with the iterative method
-      [a, a_prime, ct, cn, ~] = induction_factor_convergence(a_guess, a_prime_guess, R, r, lambda, beta, Theta_p, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, thick, fake_zero, i_max);
-      
-      cp_partial(i) = r*((1 - a)^2 + (lambda*r/R*(1 + a_prime))^2)*c*ct;
-      cT_partial(i) = ((1 - a)^2 + (lambda*r/R*(1 + a_prime))^2)*c*cn;
-
-    end % stop looping over blade position r
+    [cp_partial, cT_partial] = cP_cT_partial(r_item_no_tip, r_vector, ...
+  beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
+  Theta_p, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+%     for i=1:r_item_no_tip % loop over the blade positions 
+%       r = r_vector(i);
+%       beta = beta_vector(i);
+%       thick = thick_vector(i);
+%       c = c_vector(i);
+%       sigma = sigma_function(c, B, r);
+% 
+%       % compute the a and a_prime with the iterative method
+%       [a, a_prime, ct, cn, ~] = induction_factor_convergence(a_guess, a_prime_guess, R, r, lambda, beta, Theta_p, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, thick, fake_zero, i_max);
+%       
+%       cp_partial(i) = r*((1 - a)^2 + (lambda*r/R*(1 + a_prime))^2)*c*ct;
+%       cT_partial(i) = ((1 - a)^2 + (lambda*r/R*(1 + a_prime))^2)*c*cn;
+% 
+%     end % stop looping over blade position r
     % integrate the partial results to get cp 
     pos = (l-1)*pitch_item + t;
 
@@ -207,10 +211,11 @@ title("Rotational speed as function of wind velocity")
 
 % Method 3: interpolate with a polynomial
 V0_vector_cut_in_out = linspace(V0_cutin, V0_cut_out, V0_cut_in_out_item);
-for v=1:V0_cut_in_out_item % loop over differnet velocities
-  % chose a velocity
-  V0_e3 = V0_vector_cut_in_out(v);
-  
+P = zeros(1, pitch_item);
+% for v=1:V0_cut_in_out_item % loop over differnet velocities
+%   % chose a velocity
+%   V0_e3 = V0_vector_cut_in_out(v);
+    V0_e3 = 20;
   % compute lambda
   if V0_e3 < V0_rated
     lambda = lambda_opt;
@@ -221,12 +226,22 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
   end
 
   % chose Theta_p
-  P = zeros(1, pitch_item);
+  
   for p = 1:pitch_item %loop over different pitch
     Theta_p_e3 = pitch_vector(p);
-    P(p) = 
+
+    [cp_partial, cT_partial] = cP_cT_partial(r_item_no_tip, r_vector, ...
+  beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
+  Theta_p_e3, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+
+   P(p) = 0.5*omega_e3*B*rho*V0_e3*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
+
   end
-end
+  
+  figure()
+  plot(pitch_vector, P)
+
+% end
  
 
 %%

@@ -17,7 +17,7 @@ lambda_item = 10; % number of divisions of lambda range
 pitch_item = 10; % number of divisions of pitch range
 
 V0_item = 20; % number of divison for the omega plot in Q2
-V0_cut_in_out_item = 50; % number of division for velocity vector in Q3
+V0_cut_in_out_item = 20; % number of division for velocity vector in Q3
 pitch_item_e3 = 10; % number of division for the pitch in Q3
 pitch_range_e3 = [-0.22 0.42];  % (rad) range in within look for picth angle 
 

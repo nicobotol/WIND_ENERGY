@@ -211,11 +211,11 @@ title("Rotational speed as function of wind velocity")
 
 % Method 3: interpolate with a polynomial
 V0_vector_cut_in_out = linspace(V0_cutin, V0_cut_out, V0_cut_in_out_item);
-P = zeros(1, pitch_item);
-% for v=1:V0_cut_in_out_item % loop over differnet velocities
-%   % chose a velocity
-%   V0_e3 = V0_vector_cut_in_out(v);
-    V0_e3 = 20;
+                                                                                                         
+pitch_vector_e3 = linspace(pitch_range_e3(1), pitch_range_e3(2), pitch_item_e3); % vector of pitch equally distributed in the range 
+P_e3 = zeros(1, pitch_item_e3);
+
+  V0_e3 = 20;
   % compute lambda
   if V0_e3 < V0_rated
     lambda = lambda_opt;
@@ -227,22 +227,113 @@ P = zeros(1, pitch_item);
 
   % chose Theta_p
   
-  for p = 1:pitch_item %loop over different pitch
-    Theta_p_e3 = pitch_vector(p);
+  for p = 1:pitch_item_e3 %loop over different pitch
+    Theta_p_e3 = pitch_vector_e3(p);
 
     [cp_partial, cT_partial] = cP_cT_partial(r_item_no_tip, r_vector, ...
-  beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
-  Theta_p_e3, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+    beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
+    Theta_p_e3, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
 
-   P(p) = 0.5*omega_e3*B*rho*V0_e3*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
-
+    P_e3(p) = 0.5*omega_e3*B*rho*V0_e3^2*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
+    
   end
+ 
+%   figure()
+%   plot(rad2deg(pitch_vector), P_e3)
+%   
+  % polynomial interpolation
   
+  [pl, S] = polyfit(pitch_vector_e3, P_e3, 3); % coefficients of the regression
+  P_fit = polyval(pl, pitch_vector_e3, S); % fit the regression
+
   figure()
-  plot(pitch_vector, P)
+  plot(pitch_vector_e3, P_e3)
+  hold on
+  plot(pitch_vector_e3, P_fit)
+  yline(P_rated)
+  hold off
+  legend('Computed', 'Interpolated', 'Location','northwest')
+
+  figure()
+  res = P_e3 - P_fit; % residuls of the regression
+  [h, p_value] = chi2gof(res);
+  scatterhist(pitch_vector_e3, res, "Direction","out","Location","SouthWest")
+  text(0, -5.5, sprintf("p-value: %f, h: %d", p_value, h), "FontSize",12);
 
 % end
- 
+poly_coeff = [pl(1) pl(2) pl(3) pl(4)-P_rated];
+sol = roots(poly_coeff)
+
+
+%% QUESTION 3
+% first part of the question
+
+V0_vector_cut_in_out = linspace(V0_cutin, V0_cut_out, V0_cut_in_out_item);
+                                                                                                         
+pitch_vector_e3 = linspace(pitch_range_e3(1), pitch_range_e3(2), pitch_item_e3); % vector of pitch equally distributed in the range 
+
+Theta_p_limit = zeros(4, V0_cut_in_out_item); % initialize the matrix to store results
+
+for v=1:V0_cut_in_out_item % loop over differnet velocities
+  P_e3 = zeros(1, pitch_item_e3);
+  % chose a velocity
+  V0_e3 = V0_vector_cut_in_out(v);
+
+  % compute lambda
+  if V0_e3 < V0_rated
+    lambda = lambda_opt;
+    omega_e3 = V0_e3 * lambda / R;
+  else
+    omega_e3 = omega_max;
+    lambda = omega_e3 * R / V0_e3;
+  end
+
+  % chose Theta_p
+  
+  for p = 1:pitch_item_e3 %loop over different pitch
+    Theta_p_e3 = pitch_vector_e3(p);
+
+    [cp_partial, cT_partial] = cP_cT_partial(r_item_no_tip, r_vector, ...
+    beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
+    Theta_p_e3, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+
+    P_e3(p) = 0.5*omega_e3*B*rho*V0_e3^2*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
+    
+  end
+
+  % polynomial interpolation
+  
+  [pl, S] = polyfit(pitch_vector_e3, P_e3, 3); % coefficients of the regression
+  P_fit = polyval(pl, pitch_vector_e3, S); % fit the regression
+
+  res = P_e3 - P_fit; % residuls of the regression
+  [h, p_value] = chi2gof(res);
+
+  poly_coeff = [pl(1) pl(2) pl(3) pl(4)-P_rated];
+  sol = roots(poly_coeff);
+
+  Theta_p_limit(1, v) = V0_e3;
+  Theta_p_limit(2, v) = sol(2);
+  Theta_p_limit(3, v) = sol(3);
+  Theta_p_limit(4, v) = p_value;
+
+end
+
+figure()
+plot(Theta_p_limit(1,:), Theta_p_limit(2,:))
+hold on
+plot(Theta_p_limit(1,:), Theta_p_limit(3,:))
+hold off
+xlabel('Wind speed (m/s)')
+ylabel('Pitch angle (rad)')
+title('Pitch angle to control the power')
+legend('fathering', 'stall')
+
+figure()
+plot(Theta_p_limit(1,:), Theta_p_limit(4,:))
+xlabel('Wind speed (m/s)')
+ylabel('p-values')
+title('p-value')
 
 %%
 % second part of the question 

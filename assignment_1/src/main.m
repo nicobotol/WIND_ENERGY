@@ -155,18 +155,18 @@ plot3( cP_cT_mat(1,:), rad2deg(cP_cT_mat(2,:)), cP_cT_mat(3,:), 'o')
 xlabel('\lambda')
 ylabel('\Theta_p')
 zlabel('cP')
-%%
-cP_vs_Theta_p_vs_pitch_contour = figure('Position', get(0, 'Screensize'));
-% contour( cP_cT_mat(1,:), rad2deg(cP_cT_mat(2,:)), cP_cT_mat(3,:))
-patch(cP_cT_mat(1,:), cP_cT_mat(2,:), cP_cT_mat(3,:))
-colorbar()
-xlabel('\lambda')
-ylabel('\Theta_p')
-zlabel('cP')
-%%
-[xq, yq] = meshgrid(lambda_range(1): 0.2: lambda_range(2), pitch_range(1):0.2:pitch_range(2));
-zq = griddata(cP_cT_mat(1,:), cP_cT_mat(2,:), cP_cT_mat(3,:), xq, yq);
-mesh(xq,yq,zq)
+% %%
+% cP_vs_Theta_p_vs_pitch_contour = figure('Position', get(0, 'Screensize'));
+% % contour( cP_cT_mat(1,:), rad2deg(cP_cT_mat(2,:)), cP_cT_mat(3,:))
+% patch(cP_cT_mat(1,:), cP_cT_mat(2,:), cP_cT_mat(3,:))
+% colorbar()
+% xlabel('\lambda')
+% ylabel('\Theta_p')
+% zlabel('cP')
+% %%
+% [xq, yq] = meshgrid(lambda_range(1): 0.2: lambda_range(2), pitch_range(1):0.2:pitch_range(2));
+% zq = griddata(cP_cT_mat(1,:), cP_cT_mat(2,:), cP_cT_mat(3,:), xq, yq);
+% mesh(xq,yq,zq)
 
 % procedue to create a matrix of cP as function of lamda and theta
 %
@@ -340,6 +340,8 @@ cP = size(1, V0_item);
 cT = size(1, V0_item);
 
 V0_vector_cut_in_out = linspace(V0_cutin, V0_cut_out, V0_cut_in_out_item);
+V0_vector_cut_in_out(end+1) = V0_rated; % add the rated velocity 
+V0_vector_cut_in_out = sort(V0_vector_cut_in_out); % sort the vector
 for v=1:V0_cut_in_out_item % loop over differnet velocities
   V0_actual = V0_vector_cut_in_out(v);
   
@@ -353,17 +355,28 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
     c = c_vector(i);
     sigma = sigma_function(c, B, r);
     
-    if V0_actual < V0_rated
+    if V0_actual < V0_rated - 1e-4
       lambda = lambda_opt;
       omega_actual = V0_actual * lambda / R;
       Theta_p = Theta_p_opt;
       % compute the a and a_prime with the iterative method
-      [a, a_prime, ct, cn, ~] = induction_factor_convergence(a_guess, a_prime_guess, ...
-        R, r, lambda, beta, Theta_p, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, ...
-        thick, fake_zero, i_max);
-      Vrel = sqrt((V0_actual*(1 - a))^2 + (omega_actual*r*(1 + a_prime))^2); % (m/s)
-      pn_partial(i) = 0.5*rho*c*cn*Vrel^2;
-      pt_partial(i) = r * 0.5*rho*c*ct*Vrel^2;
+%       [a, a_prime, ct, cn, ~] = induction_factor_convergence(a_guess, a_prime_guess, ...
+%         R, r, lambda, beta, Theta_p, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, ...
+%         thick, fake_zero, i_max);
+%       Vrel = sqrt((V0_actual*(1 - a))^2 + (omega_actual*r*(1 + a_prime))^2); % (m/s)
+%       pn_partial(i) = 0.5*rho*c*cn*Vrel^2;
+%       pt_partial(i) = r * 0.5*rho*c*ct*Vrel^2;
+
+      [cp_partial, cT_partial] = cP_cT_partial(r_item_no_tip, r_vector, ...
+        beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
+        Theta_p, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+      
+      cP_lower(v) = lambda*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
+      cT_lower(v) = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial);
+      
+      P_lower(v) = cP_lower(v)*0.5*A*rho*V0_actual^3;
+      T_lower(v) = cT_lower(v)*0.5*A*rho*V0_actual^2;
+
       V0_lower(v) = V0_actual;
      
     else
@@ -371,77 +384,131 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
       Theta_p_feat = interp1(Theta_p_limit(1,:), Theta_p_limit(2,:), V0_actual);
       Theta_p_stall = interp1(Theta_p_limit(1,:), Theta_p_limit(3,:), V0_actual);
     
-  
-      % compute the a and a_prime with the iterative method
-      [a_feat, a_prime_feat, ct_feat, cn_feat, ~] = induction_factor_convergence(a_guess, a_prime_guess, ...
-        R, r, lambda, beta, Theta_p_feat, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, ...
-        thick, fake_zero, i_max);
-      [a_stall, a_prime_stall, ct_stall, cn_stall, ~] = induction_factor_convergence(a_guess, a_prime_guess, ...
-        R, r, lambda, beta, Theta_p_stall, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, ...
-        thick, fake_zero, i_max);
-    
-      Vrel_stall = sqrt((V0_actual*(1 - a_stall))^2 + (omega_actual*r*(1 + a_prime_stall))^2); % (m/s)
-      Vrel_feat = sqrt((V0_actual*(1 - a_feat))^2 + (omega_actual*r*(1 + a_prime_feat))^2); % (m/s)
-  
-      pn_partial_stall(i) = 0.5*rho*c*cn*Vrel_stall^2;
-      pn_partial_feat(i) = 0.5*rho*c*cn*Vrel_feat^2;
-      pt_partial_stall(i) = r * 0.5*rho*c*ct*Vrel_stall^2;
-      pt_partial_feat(i) = r * 0.5*rho*c*ct*Vrel_feat^2;
+%       % compute the a and a_prime with the iterative method
+%       [a_feat, a_prime_feat, ct_feat, cn_feat, ~] = induction_factor_convergence(a_guess, a_prime_guess, ...
+%         R, r, lambda, beta, Theta_p_feat, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, ...
+%         thick, fake_zero, i_max);
+%       [a_stall, a_prime_stall, ct_stall, cn_stall, ~] = induction_factor_convergence(a_guess, a_prime_guess, ...
+%         R, r, lambda, beta, Theta_p_stall, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, ...
+%         thick, fake_zero, i_max);
+%     
+%       Vrel_stall = sqrt((V0_actual*(1 - a_stall))^2 + (omega_actual*r*(1 + a_prime_stall))^2); % (m/s)
+%       Vrel_feat = sqrt((V0_actual*(1 - a_feat))^2 + (omega_actual*r*(1 + a_prime_feat))^2); % (m/s)
+%   
+%       pn_partial_stall(i) = 0.5*rho*c*cn*Vrel_stall^2;
+%       pn_partial_feat(i) = 0.5*rho*c*cn*Vrel_feat^2;
+%       pt_partial_stall(i) = r * 0.5*rho*c*ct*Vrel_stall^2;
+%       pt_partial_feat(i) = r * 0.5*rho*c*ct*Vrel_feat^2;
+        
+        % items at velocity lower than V0_rated
+        gap = size(V0_lower, 2);
+        pos = v - gap; % position where to store values
 
+        % feathering
+        [cp_partial_feat, cT_partial_feat] = cP_cT_partial(r_item_no_tip, r_vector, ...
+          beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
+          Theta_p_feat, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+      
+        cP_feat(pos) = lambda*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial_feat);
+        cT_feat(pos) = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial_feat);
+        
+
+        P_feat(pos) = cP_feat(pos)*0.5*rho*A*V0_actual^3;
+        T_feat(pos) = cT_feat(pos)*0.5*rho*A*V0_actual^2;
+
+        % stall
+        [cp_partial_stall, cT_partial_stall] = cP_cT_partial(r_item_no_tip, r_vector, ...
+          beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
+          Theta_p_stall, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+      
+        cP_stall(pos) = lambda*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial_stall);
+        cT_stall(pos) = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial_stall);
+
+        P_stall(pos) = cP_stall(pos)*0.5*rho*A*V0_actual^3;
+        T_stall(pos) = cT_stall(pos)*0.5*rho*A*V0_actual^2;
     end
   end % stop looping over blade position r
   
-  if V0_actual < V0_rated
-    T(v) = B*trapezoidal_integral(r_vector(1:r_item_no_tip), pn_partial); % thrust (N)
-    P(v) = omega_actual*B*trapezoidal_integral(r_vector(1:r_item_no_tip), pt_partial); % power (W)
-  
-    cT(v) = T(v) / (0.5*rho*V0_actual^2*A);
-    cP(v) = P(v) / (0.5*rho*V0_actual^3*A);
-  else
-    T_feat(v) = B*trapezoidal_integral(r_vector(1:r_item_no_tip), pn_partial_feat); % thrust (N)
-    T_stall(v) = B*trapezoidal_integral(r_vector(1:r_item_no_tip), pn_partial_stall); % thrust (N)
-    P_feat(v) = omega_max*B*trapezoidal_integral(r_vector(1:r_item_no_tip), pt_partial_feat); % power (W)
-    P_stall(v) = omega_max*B*trapezoidal_integral(r_vector(1:r_item_no_tip), pt_partial_stall); % power (W)
-
-    cT_feat(v) = T_feat(v) / (0.5*rho*V0_actual^2*A);
-    cT_stall(v) = T_stall(v) / (0.5*rho*V0_actual^2*A);
-    cP_feat(v) = P_feat(v) / (0.5*rho*V0_actual^3*A);
-    cP_stall(v) = P_stall(v) / (0.5*rho*V0_actual^3*A);
-
-  end
+%   if V0_actual < V0_rated
+%     T(v) = B*trapezoidal_integral(r_vector(1:r_item_no_tip), pn_partial); % thrust (N)
+%     P(v) = omega_actual*B*trapezoidal_integral(r_vector(1:r_item_no_tip), pt_partial); % power (W)
+%   
+%     cT(v) = T(v) / (0.5*rho*V0_actual^2*A);
+%     cP(v) = P(v) / (0.5*rho*V0_actual^3*A);
+%   else
+%     T_feat(v) = B*trapezoidal_integral(r_vector(1:r_item_no_tip), pn_partial_feat); % thrust (N)
+%     T_stall(v) = B*trapezoidal_integral(r_vector(1:r_item_no_tip), pn_partial_stall); % thrust (N)
+%     P_feat(v) = omega_max*B*trapezoidal_integral(r_vector(1:r_item_no_tip), pt_partial_feat); % power (W)
+%     P_stall(v) = omega_max*B*trapezoidal_integral(r_vector(1:r_item_no_tip), pt_partial_stall); % power (W)
+% 
+%     cT_feat(v) = T_feat(v) / (0.5*rho*V0_actual^2*A);
+%     cT_stall(v) = T_stall(v) / (0.5*rho*V0_actual^2*A);
+%     cP_feat(v) = P_feat(v) / (0.5*rho*V0_actual^3*A);
+%     cP_stall(v) = P_stall(v) / (0.5*rho*V0_actual^3*A);
+% 
+%   end
 end % stop looping over different velocities
 
-%V0_upper = zeros(1, V0_cut_in_out_item - size(V0_lower, 2));
+
+% Add the value on the LH side of the rated velocity
+[cp_partial_end, cT_partial_end] = cP_cT_partial(r_item_no_tip, r_vector, ...
+  beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda_opt, ...
+  Theta_p_opt, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+
+cP_lower(end + 1) = lambda_opt*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial_end);
+cT_lower(end + 1) = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial_end);
+
+P_lower(end + 1) = cP_lower(end)*0.5*A*rho*V0_rated^3;
+T_lower(end + 1) = cT_lower(end)*0.5*A*rho*V0_rated^2;
+
+% Add the value on the RH side of the rated velocity
+V0_lower(end + 1) = V0_rated;
+
+%%
+V0_upper = zeros(1, size(V0_cut_in_out_item, 2) - size(V0_lower, 2));
 V0_upper = V0_vector_cut_in_out(1, size(V0_lower, 2) + 1:end);
-P_feat = P_feat(1, size(V0_lower, 2) + 1:end);
-P_stall = P_stall(1, size(V0_lower, 2) + 1:end);
-cP_stall = cP_stall(1, size(V0_lower, 2) + 1:end);
-cP_faet = cP_feat(1, size(V0_lower, 2) + 1:end);
+
+
+% P_feat = P_feat(1, size(V0_lower, 2) + 1:end);
+% P_stall = P_stall(1, size(V0_lower, 2) + 1:end);
+% cP_stall = cP_stall(1, size(V0_lower, 2) + 1:end);
+% cP_faet = cP_feat(1, size(V0_lower, 2) + 1:end);
 
 P_vs_V0 = figure('Position', get(0, 'Screensize'));
-plot(V0_lower, P);
+plot(V0_lower, P_lower);
 hold on
 plot(V0_upper, P_feat)
 plot(V0_upper, P_stall)
 hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('Power (W)')
+legend('below rated velocity', 'Feathering', 'Stalling')
 
-% T_vs_V0 = figure('Position', get(0, 'Screensize'));
-% plot(V0_vector_cut_in_out, T);
-% xlabel('Wind velocity V0 (m/s)')
-% ylabel('Thrust (N)')
+T_vs_V0 = figure('Position', get(0, 'Screensize'));
+plot(V0_lower, T_lower);
+hold on
+plot(V0_upper, T_feat);
+plot(V0_upper, T_stall);
+hold off
+xlabel('Wind velocity V0 (m/s)')
+ylabel('Thrust (N)')
+legend('below rated velocity', 'Feathering', 'Stalling')
 
 cP_vs_V0 = figure('Position', get(0, 'Screensize'));
-plot(V0_lower, cP);
+plot(V0_lower, cP_lower);
 hold on
-plot(V0_upper, cP_faet);
+plot(V0_upper, cP_feat);
 plot(V0_upper, cP_stall);
 hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('cP')
+legend('below rated velocity', 'Feathering', 'Stalling')
 
 cT_vs_V0 = figure('Position', get(0, 'Screensize'));
-plot(V0_vector_cut_in_out, cT);
+plot(V0_lower, cT_lower);
+hold on
+plot(V0_upper, cT_feat)
+plot(V0_upper, cT_stall)
 xlabel('Wind velocity V0 (m/s)')
 ylabel('cT')
+legend('below rated velocity', 'Feathering', 'Stalling')

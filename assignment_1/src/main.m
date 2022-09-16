@@ -44,6 +44,9 @@ lambda_vector = linspace(lambda_range(1), lambda_range(2), lambda_item); % vecto
 pitch_vector = linspace(pitch_range(1), pitch_range(2), pitch_item); % vector of pitch equally distributed in the range
 cP_cT_mat = zeros(4, pitch_item*lambda_item); % matrix for store the couple (lambda, Theta) and the corresponding cp and cn values
 
+contour_mat_cP = zeros(pitch_item, lambda_item); % matrix of cPs for the contour plot
+contour_mat_cT = zeros(pitch_item, lambda_item); % matrix of cTs for the contour plot
+
 for l=1:lambda_item  % loop over lambda
   lambda = lambda_vector(l);
   for t=1:pitch_item % loop over pitch
@@ -55,27 +58,19 @@ for l=1:lambda_item  % loop over lambda
     [cp_partial, cT_partial] = cP_cT_partial(r_item_no_tip, r_vector, ...
   beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
   Theta_p, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
-%     for i=1:r_item_no_tip % loop over the blade positions 
-%       r = r_vector(i);
-%       beta = beta_vector(i);
-%       thick = thick_vector(i);
-%       c = c_vector(i);
-%       sigma = sigma_function(c, B, r);
-% 
-%       % compute the a and a_prime with the iterative method
-%       [a, a_prime, ct, cn, ~] = induction_factor_convergence(a_guess, a_prime_guess, R, r, lambda, beta, Theta_p, B, sigma, aoa_mat, cl_mat, cd_mat, thick_prof, thick, fake_zero, i_max);
-%       
-%       cp_partial(i) = r*((1 - a)^2 + (lambda*r/R*(1 + a_prime))^2)*c*ct;
-%       cT_partial(i) = ((1 - a)^2 + (lambda*r/R*(1 + a_prime))^2)*c*cn;
-% 
-%     end % stop looping over blade position r
+
     % integrate the partial results to get cp 
     pos = (l-1)*pitch_item + t;
-
-    cP_cT_mat(3, pos) = lambda*B/(A*R) * trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
-    cP_cT_mat(4, pos) = B / A * trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial);
+    
+    cP = lambda*B/(A*R) * trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial); 
+    cT = B / A * trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial);
+    cP_cT_mat(3, pos) = cP; %cP
+    cP_cT_mat(4, pos) = cT; %cT
     cP_cT_mat(1, pos) = lambda;
     cP_cT_mat(2, pos) = Theta_p;
+
+    contour_mat_cP(t, l) = cP;
+    contour_mat_cT(t,l) = cT;
   end % stop looping over pitch Theta_p
 end % stop looping over lambda
 
@@ -90,10 +85,10 @@ disp(disp_lambda)
 disp(disp_Theta_p)
 
 %%
-close all
+
 % plot the results
-cp_vs_pitch = figure('Position', get(0, 'Screensize'));
 legend_name_cp_vs_pitch = strings(1, lambda_item);
+cp_vs_pitch = figure('Position', get(0, 'Screensize'));
 for l=1:lambda_item
   set = [1:1:pitch_item] + (l - 1)*pitch_item;
   plot(rad2deg(cP_cT_mat(2,set)), cP_cT_mat(3,set))
@@ -105,7 +100,10 @@ xlabel('\Theta_P')
 legend(legend_name_cp_vs_pitch)
 title('cP as function of the pitch angle')
 hold off
-
+ax = gca;
+ax.FontSize = font_size;
+saveas(cp_vs_pitch, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\cp_vs_pitch.png','png');
+%%
 cp_vs_lambda = figure('Position', get(0, 'Screensize'));
 legend_name_cp_vs_lambda = strings(1, pitch_item);
 for p=1:pitch_item
@@ -119,6 +117,9 @@ xlabel('\lambda')
 legend(legend_name_cp_vs_lambda)
 title('cP as function of \lambda')
 hold off
+ax = gca;
+ax.FontSize = font_size;
+saveas(cp_vs_lambda, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\cp_vs_lambda.png','png');
 
 % plot the results
 cT_vs_pitch = figure('Position', get(0, 'Screensize'));
@@ -134,6 +135,9 @@ xlabel('\Theta_P')
 legend(legend_name_cp_vs_pitch)
 title('cT as function of the pitch angle')
 hold off
+ax = gca;
+ax.FontSize = font_size;
+saveas(cT_vs_pitch, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\cT_vs_pitch.png','png');
 
 cT_vs_lambda = figure('Position', get(0, 'Screensize'));
 legend_name_cp_vs_lambda = strings(1, pitch_item);
@@ -148,43 +152,30 @@ xlabel('\lambda')
 legend(legend_name_cp_vs_lambda)
 title('cT as function of \lambda')
 hold off
-%%
+ax = gca;
+ax.FontSize = font_size;
+saveas(cT_vs_lambda, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\cT_vs_lambda.png','png');
 
-cP_vs_Theta_p_vs_pitch = figure('Position', get(0, 'Screensize'));
-plot3( cP_cT_mat(1,:), rad2deg(cP_cT_mat(2,:)), cP_cT_mat(3,:), 'o')
+% contour plot
+contour_plot_cP = figure('Position', get(0, 'Screensize'));
+contourf(lambda_vector, rad2deg(pitch_vector), contour_mat_cP);
+colorbar()
 xlabel('\lambda')
-ylabel('\Theta_p')
-zlabel('cP')
-% %%
-% cP_vs_Theta_p_vs_pitch_contour = figure('Position', get(0, 'Screensize'));
-% % contour( cP_cT_mat(1,:), rad2deg(cP_cT_mat(2,:)), cP_cT_mat(3,:))
-% patch(cP_cT_mat(1,:), cP_cT_mat(2,:), cP_cT_mat(3,:))
-% colorbar()
-% xlabel('\lambda')
-% ylabel('\Theta_p')
-% zlabel('cP')
-% %%
-% [xq, yq] = meshgrid(lambda_range(1): 0.2: lambda_range(2), pitch_range(1):0.2:pitch_range(2));
-% zq = griddata(cP_cT_mat(1,:), cP_cT_mat(2,:), cP_cT_mat(3,:), xq, yq);
-% mesh(xq,yq,zq)
+ylabel('\Theta_p (°)')
+title('Contour plot of c_P')
+ax = gca;
+ax.FontSize = font_size;
+saveas(contour_plot_cP, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\contour_plot_cP.png','png');
 
-% procedue to create a matrix of cP as function of lamda and theta
-%
-% create a vector of lambda within the suggested range
-% create a vector of theta within the suggested range
-% loop over lambda
-%   loop over theta
-%     loop over r (not arrive to close to the tip)
-%       compute sigma
-%         loop until convergence to get a, a_prime, ct
-%         end loop until convergence
-%       store a, a_prime, ct
-%     end loop over r
-%     integrate and find the global cP
-%     store the result in the column of a matrix
-%   end loop over theta
-%   store the results in the row of a matrix
-% end loop over lambda
+contour_plot_cT = figure('Position', get(0, 'Screensize'));
+contourf(lambda_vector, rad2deg(pitch_vector), contour_mat_cT);
+colorbar()
+xlabel('\lambda')
+ylabel('\Theta_p (°)')
+title('Contour plot of c_T')
+ax = gca;
+ax.FontSize = font_size;
+saveas(contour_plot_cT, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\contour_plot_cT.png','png');
 
 %% QUESTION 2
 
@@ -210,6 +201,10 @@ hold off
 xlabel("Wind velocity (m/s)")
 ylabel("\omega (rad/s)")
 title("Rotational speed as function of wind velocity")
+ax = gca;
+ax.FontSize = font_size;
+saveas(omega_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\omega_vs_V0.png','png');
+
 
 
 % %% QUESTION 3
@@ -323,7 +318,7 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
 
 end
 
-figure()
+pitch_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(2,:)))
 hold on
 plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(3,:)))
@@ -333,9 +328,12 @@ xlabel('Wind speed (m/s)')
 ylabel('Pitch angle (°)')
 title('Pitch angle to control the power')
 legend('fathering', 'stall', 'not controlled zone', 'Location', 'southwest')
+ax = gca;
+ax.FontSize = font_size;
+saveas(pitch_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pitch_vs_V0.png','png');
 
 % comparison of our results with the one of DTU refernce turbine pag. 33
-figure()
+pitch_vs_V0_reference_comparison = figure('Position', get(0, 'Screensize'));
 plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(3,:)))
 hold on
 plot(velocity_reference, pitch_reference)
@@ -344,6 +342,9 @@ xlabel('Wind speed (m/s)')
 ylabel('Pitch angle (°)')
 title('Pitch angle to control the power')
 legend('fathering', 'reference')
+ax = gca;
+ax.FontSize = font_size;
+saveas(pitch_vs_V0_reference_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pitch_vs_V0pitch_vs_V0_reference_comparison.png','png');
 
 %%
 T_e3(p) = 0.5*B*rho*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial);
@@ -460,7 +461,7 @@ T_lower(end + 1) = cT_lower(end)*0.5*A*rho*V0_rated^2;
 V0_lower(end + 1) = V0_rated;
 
 %% Plot the results
-close all
+
 P_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, P_lower);
 hold on
@@ -471,6 +472,10 @@ xlabel('Wind velocity V0 (m/s)')
 ylabel('Power (W)')
 legend('Below rated velocity', 'Feathering', 'Stalling','Location', 'southeast')
 xlim([V0_cutin V0_cut_out])
+ax = gca;
+ax.FontSize = font_size;
+saveas(P_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\P_vs_V0.png','png');
+
 
 T_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, T_lower);
@@ -482,6 +487,9 @@ xlabel('Wind velocity V0 (m/s)')
 ylabel('Thrust (N)')
 legend('Below rated velocity', 'Feathering', 'Stalling')
 xlim([V0_cutin V0_cut_out])
+ax = gca;
+ax.FontSize = font_size;
+saveas(T_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\T_vs_V0.png','png');
 
 cP_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, cP_lower);
@@ -493,6 +501,9 @@ xlabel('Wind velocity V0 (m/s)')
 ylabel('cP')
 legend('Below rated velocity', 'Feathering', 'Stalling')
 xlim([V0_cutin V0_cut_out])
+ax = gca;
+ax.FontSize = font_size;
+saveas(cP_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\cP_vs_V0.png','png');
 
 cT_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, cT_lower);
@@ -503,6 +514,9 @@ xlabel('Wind velocity V0 (m/s)')
 ylabel('cT')
 legend('Below rated velocity', 'Feathering', 'Stalling')
 xlim([V0_cutin V0_cut_out])
+ax = gca;
+ax.FontSize = font_size;
+saveas(cT_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\cT_vs_V0.png','png');
 
 %% QUESTION 5
 % first part
@@ -527,8 +541,11 @@ for i=1:size(V0_weibull, 2)
   weibull(i) = weibull_pdf(V0_weibull(i), A_weibull, k_weibull);
 end
 
-figure()
-plot(V0_weibull, weibull)
+weibull_plot = figure('Position', get(0, 'Screensize'));
+plot(V0_weibull, weibull) 
 xlabel('Wind speed (m/s)')
 ylabel('Weibull PDF')
 title('Weibull pdf as function of the wind velocity')
+ax = gca;
+ax.FontSize = font_size;
+saveas(weibull_plot, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\weibull_plot.png','png');

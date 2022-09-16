@@ -1,5 +1,7 @@
 %% PARAMETERS
 
+font_size = 10;
+
 i_max = 300;  % maximum number of accepted iterations
 fake_zero = 1e-8; % thershold for exiting the loop
 

@@ -204,6 +204,9 @@ omega_plot = lambda_opt / R * V0_vector;
 
 omega_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_vector, omega_plot);
+hold on
+plot([V0_rated V0_cut_out], [omega_max omega_max])
+hold off
 xlabel("Wind velocity (m/s)")
 ylabel("\omega (rad/s)")
 title("Rotational speed as function of wind velocity")
@@ -314,21 +317,33 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
   Theta_p_part1 = pitch_vector_e3(1:max_pos);
   Theta_p_part2 = pitch_vector_e3(max_pos:end);
   
-  Theta_p_limit(1,v) = V0_e3;
-  Theta_p_limit(2,v) = interp1(P_e3_part1, Theta_p_part1, P_rated);
-  Theta_p_limit(3,v) = interp1(P_e3_part2, Theta_p_part2, P_rated);
+  Theta_p_limit(1,v) = V0_e3; % velocity
+  Theta_p_limit(2,v) = interp1(P_e3_part1, Theta_p_part1, P_rated); % pitch angle for feathering
+  Theta_p_limit(3,v) = interp1(P_e3_part2, Theta_p_part2, P_rated); % pitch angle for stall
 
 end
 
 figure()
-plot(Theta_p_limit(1,:), Theta_p_limit(2,:))
+plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(2,:)))
 hold on
-plot(Theta_p_limit(1,:), Theta_p_limit(3,:))
+plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(3,:)))
+plot([0 V0_rated], [0 0], 'g--')
 hold off
 xlabel('Wind speed (m/s)')
-ylabel('Pitch angle (rad)')
+ylabel('Pitch angle (°)')
 title('Pitch angle to control the power')
-legend('fathering', 'stall')
+legend('fathering', 'stall', 'not controlled zone', 'Location', 'southwest')
+
+% comparison of our results with the one of DTU refernce turbine pag. 33
+figure()
+plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(3,:)))
+hold on
+plot(velocity_reference, pitch_reference)
+hold off
+xlabel('Wind speed (m/s)')
+ylabel('Pitch angle (°)')
+title('Pitch angle to control the power')
+legend('fathering', 'reference')
 
 %%
 T_e3(p) = 0.5*B*rho*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial);
@@ -341,9 +356,10 @@ cT = size(1, V0_item);
 
 % Build the velocity vector adding also the V0_rated
 V0_vector_cut_in_out = linspace(V0_cutin, V0_cut_out, V0_cut_in_out_item);
-V0_vector_cut_in_out(end+1) = V0_rated; % add the rated velocity 
+V0_vector_cut_in_out(end + 1) = V0_rated; % add the rated velocity 
+V0_vector_cut_in_out(end + 1) = 20; % add 20 (m/s) since it will need in Q5
 V0_vector_cut_in_out = sort(V0_vector_cut_in_out); % sort the vector
-V0_cut_in_out_item = V0_cut_in_out_item + 1; % increase the number of item
+V0_cut_in_out_item = V0_cut_in_out_item + 2; % increase the number of item
 
 for v=1:V0_cut_in_out_item % loop over differnet velocities
   V0_actual = V0_vector_cut_in_out(v);
@@ -407,7 +423,6 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
     
       cP_feat(pos) = lambda*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial_feat);
       cT_feat(pos) = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial_feat);
-      
 
       P_feat(pos) = cP_feat(pos)*0.5*rho*A*V0_actual^3;
       T_feat(pos) = cT_feat(pos)*0.5*rho*A*V0_actual^2;
@@ -445,7 +460,7 @@ T_lower(end + 1) = cT_lower(end)*0.5*A*rho*V0_rated^2;
 V0_lower(end + 1) = V0_rated;
 
 %% Plot the results
-
+close all
 P_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, P_lower);
 hold on
@@ -454,7 +469,8 @@ plot(V0_upper, P_stall)
 hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('Power (W)')
-legend('below rated velocity', 'Feathering', 'Stalling')
+legend('Below rated velocity', 'Feathering', 'Stalling','Location', 'southeast')
+xlim([V0_cutin V0_cut_out])
 
 T_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, T_lower);
@@ -464,7 +480,8 @@ plot(V0_upper, T_stall);
 hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('Thrust (N)')
-legend('below rated velocity', 'Feathering', 'Stalling')
+legend('Below rated velocity', 'Feathering', 'Stalling')
+xlim([V0_cutin V0_cut_out])
 
 cP_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, cP_lower);
@@ -474,7 +491,8 @@ plot(V0_upper, cP_stall);
 hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('cP')
-legend('below rated velocity', 'Feathering', 'Stalling')
+legend('Below rated velocity', 'Feathering', 'Stalling')
+xlim([V0_cutin V0_cut_out])
 
 cT_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, cT_lower);
@@ -483,4 +501,34 @@ plot(V0_upper, cT_feat)
 plot(V0_upper, cT_stall)
 xlabel('Wind velocity V0 (m/s)')
 ylabel('cT')
-legend('below rated velocity', 'Feathering', 'Stalling')
+legend('Below rated velocity', 'Feathering', 'Stalling')
+xlim([V0_cutin V0_cut_out])
+
+%% QUESTION 5
+% first part
+P_e5_feat = [P_lower(1:end-1), P_feat]; % power vector for velocities from cut in up to cut out
+P_e5_stall = [P_lower(1:end-1), P_stall]; % power vector for velocities from cut in up to cut out
+
+V0_e5 = [V0_lower(1:end-1), V0_upper]; % velocity vector 
+
+AEO = 0;  % Initialize AEO
+AEO_20 = 0; % 
+
+[AEO_25_feat, AEO_20_feat, CF_25_feat, CF_20_feat, delta_AOE_feat] = Annual_Energy_Output(P_e5_feat, V0_e5, P_rated, A_weibull, k_weibull);
+
+[AEO_25_stall, AEO_20_stall, CF_25_stall, CF_20_stall, delta_AOE_stall] = Annual_Energy_Output(P_e5_stall, V0_e5, P_rated, A_weibull, k_weibull);
+
+display(strcat('When feathering the energy difference is ', num2str(delta_AOE_feat/1e9), ' (GWh)'));
+display(strcat('When stalling the energy difference is ', num2str(delta_AOE_stall/1e9), ' (GWh)'));
+
+V0_weibull = [0:1:V0_cut_out];
+weibull = zeros(1, size(V0_weibull, 2));
+for i=1:size(V0_weibull, 2)
+  weibull(i) = weibull_pdf(V0_weibull(i), A_weibull, k_weibull);
+end
+
+figure()
+plot(V0_weibull, weibull)
+xlabel('Wind speed (m/s)')
+ylabel('Weibull PDF')
+title('Weibull pdf as function of the wind velocity')

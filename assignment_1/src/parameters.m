@@ -17,9 +17,13 @@ lambda_item = 10; % number of divisions of lambda range
 pitch_item = 10; % number of divisions of pitch range
 
 V0_item = 20; % number of divison for the omega plot in Q2
-V0_cut_in_out_item = 20; % number of division for velocity vector in Q3
+V0_cut_in_out_item = 50; % number of division for velocity vector in Q3
 pitch_item_e3 = 10; % number of division for the pitch in Q3
 pitch_range_e3 = [-0.22 0.42];  % (rad) range in within look for picth angle 
+
+% parameters of weibull distribution 
+A_weibull = 9;
+k_weibull = 1.9;
 
 %V0 = 8;
 %omega = 2.61;
@@ -41,3 +45,6 @@ blade_filename = "airfoil_data\bladedat.txt";
 % t/c ratio (they are in the same order provided as the file uploaded)
 thick_prof = [100 60 48 36 30.1 24.1];
 
+% pitch parameters from DTU reference turbine pag 33
+velocity_reference = [4:1:25];
+pitch_reference = [2.751 1.966 0.896 0.000 0.000 0.000 0.000 0.000 4.502 7.266 9.292 10.958 12.499 13.896 15.200 16.432 17.618  18.758 19.860 20.927 21.963 22.975 ];

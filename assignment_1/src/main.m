@@ -158,7 +158,11 @@ saveas(cT_vs_lambda, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERG
 
 % contour plot
 contour_plot_cP = figure('Position', get(0, 'Screensize'));
-contourf(lambda_vector, rad2deg(pitch_vector), contour_mat_cP);
+contourf(lambda_vector, rad2deg(pitch_vector), contour_mat_cP); % To display value on the plot use ,'ShowText','on'
+hold on
+plot(lambda_opt, Theta_p_opt, 'r.', 'MarkerSize',30)
+text(7.9, 0, num2str(cp_max), 'Color','r', 'FontSize', font_size)
+hold off
 colorbar()
 xlabel('\lambda')
 ylabel('\Theta_p (°)')
@@ -194,9 +198,9 @@ V0_vector = [V0_cutin: V0_step: V0_rated];
 omega_plot = lambda_opt / R * V0_vector;
 
 omega_vs_V0 = figure('Position', get(0, 'Screensize'));
-plot(V0_vector, omega_plot);
+plot(V0_vector, omega_plot,, 'LineWidth', line_width);
 hold on
-plot([V0_rated V0_cut_out], [omega_max omega_max])
+plot([V0_rated V0_cut_out], [omega_max omega_max],, 'LineWidth', line_width)
 hold off
 xlabel("Wind velocity (m/s)")
 ylabel("\omega (rad/s)")
@@ -319,10 +323,10 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
 end
 
 pitch_vs_V0 = figure('Position', get(0, 'Screensize'));
-plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(2,:)))
+plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(2,:)),, 'LineWidth', line_width)
 hold on
-plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(3,:)))
-plot([0 V0_rated], [0 0], 'g--')
+plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(3,:)),, 'LineWidth', line_width)
+plot([0 V0_rated], [0 0], 'g--',, 'LineWidth', line_width)
 hold off
 xlabel('Wind speed (m/s)')
 ylabel('Pitch angle (°)')
@@ -334,9 +338,9 @@ saveas(pitch_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY
 
 % comparison of our results with the one of DTU refernce turbine pag. 33
 pitch_vs_V0_reference_comparison = figure('Position', get(0, 'Screensize'));
-plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(3,:)))
+plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(3,:)),, 'LineWidth', line_width)
 hold on
-plot(velocity_reference, pitch_reference)
+plot(velocity_reference, pitch_reference,, 'LineWidth', line_width)
 hold off
 xlabel('Wind speed (m/s)')
 ylabel('Pitch angle (°)')
@@ -465,8 +469,8 @@ V0_lower(end + 1) = V0_rated;
 P_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, P_lower);
 hold on
-plot(V0_upper, P_feat)
-plot(V0_upper, P_stall)
+plot(V0_upper, P_feat,, 'LineWidth', line_width)
+plot(V0_upper, P_stall,, 'LineWidth', line_width)
 hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('Power (W)')
@@ -478,10 +482,10 @@ saveas(P_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\ass
 
 
 T_vs_V0 = figure('Position', get(0, 'Screensize'));
-plot(V0_lower, T_lower);
+plot(V0_lower, T_lower,, 'LineWidth', line_width);
 hold on
-plot(V0_upper, T_feat);
-plot(V0_upper, T_stall);
+plot(V0_upper, T_feat,, 'LineWidth', line_width);
+plot(V0_upper, T_stall,, 'LineWidth', line_width);
 hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('Thrust (N)')
@@ -492,10 +496,10 @@ ax.FontSize = font_size;
 saveas(T_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\T_vs_V0.png','png');
 
 cP_vs_V0 = figure('Position', get(0, 'Screensize'));
-plot(V0_lower, cP_lower);
+plot(V0_lower, cP_lower,, 'LineWidth', line_width);
 hold on
-plot(V0_upper, cP_feat);
-plot(V0_upper, cP_stall);
+plot(V0_upper, cP_feat,, 'LineWidth', line_width);
+plot(V0_upper, cP_stall,, 'LineWidth', line_width);
 hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('cP')
@@ -506,10 +510,10 @@ ax.FontSize = font_size;
 saveas(cP_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\cP_vs_V0.png','png');
 
 cT_vs_V0 = figure('Position', get(0, 'Screensize'));
-plot(V0_lower, cT_lower);
+plot(V0_lower, cT_lower,, 'LineWidth', line_width);
 hold on
-plot(V0_upper, cT_feat)
-plot(V0_upper, cT_stall)
+plot(V0_upper, cT_feat,, 'LineWidth', line_width)
+plot(V0_upper, cT_stall,, 'LineWidth', line_width)
 xlabel('Wind velocity V0 (m/s)')
 ylabel('cT')
 legend('Below rated velocity', 'Feathering', 'Stalling')
@@ -542,7 +546,7 @@ for i=1:size(V0_weibull, 2)
 end
 
 weibull_plot = figure('Position', get(0, 'Screensize'));
-plot(V0_weibull, weibull) 
+plot(V0_weibull, weibull,, 'LineWidth', line_width) 
 xlabel('Wind speed (m/s)')
 ylabel('Weibull PDF')
 title('Weibull pdf as function of the wind velocity')

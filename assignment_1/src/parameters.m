@@ -1,6 +1,7 @@
 %% PARAMETERS
 
-font_size = 10;
+font_size = 20; % font szie for plots
+line_width = 2; % line width for plots
 
 i_max = 300;  % maximum number of accepted iterations
 fake_zero = 1e-8; % thershold for exiting the loop
@@ -15,10 +16,10 @@ P_rated = 10.64e6; % rated power (W)
 
 lambda_range = [5 10]; % range in within look for optimal lambda
 pitch_range = [deg2rad(-2) deg2rad(5)]; % range in within look for optimal picth angle
-lambda_item = 10; % number of divisions of lambda range
-pitch_item = 10; % number of divisions of pitch range
+lambda_item = 15; % number of divisions of lambda range (initially it was 10)
+pitch_item = 15 ; % number of divisions of pitch range (initially it was 10)
 
-V0_item = 20; % number of divison for the omega plot in Q2
+V0_item = 25; % number of divison for the omega plot in Q2
 V0_cut_in_out_item = 50; % number of division for velocity vector in Q3
 pitch_item_e3 = 10; % number of division for the pitch in Q3
 pitch_range_e3 = [-0.22 0.42];  % (rad) range in within look for picth angle 

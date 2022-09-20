@@ -1,0 +1,18 @@
+# BEM algorithm as finite state machine
+
+digraph "Example_FSM" {
+  init # initial state
+  idle  # system waits for instructions
+  run   # run condition
+  stop  # stop condition
+
+  #list of translition
+  init -> idle [label = reset] 
+  idle -> idle  # the idle state is stable, we can stay in it
+  idle -> run
+  run -> run    # this state is stable
+  run -> idle [label = reset]
+  idle -> stop
+
+#whenever we move into idle we reset all the used variables
+}

@@ -20,8 +20,8 @@ lambda_item = 15; % number of divisions of lambda range (initially it was 10)
 pitch_item = 15 ; % number of divisions of pitch range (initially it was 10)
 
 V0_item = 25; % number of divison for the omega plot in Q2
-V0_cut_in_out_item = 50; % number of division for velocity vector in Q3
-pitch_item_e3 = 10; % number of division for the pitch in Q3
+V0_cut_in_out_item = 30; % number of division for velocity vector in Q3
+pitch_item_e3 = 30; % number of division for the pitch in Q3
 pitch_range_e3 = [-0.22 0.42];  % (rad) range in within look for picth angle 
 
 % parameters of weibull distribution 

@@ -83,7 +83,6 @@ disp_lambda = strcat('\lambda corresponding to max cP is \lambda=', num2str(lamb
 disp_Theta_p = strcat('Pitch corresponding to max cP is \Theta_p=', num2str(rad2deg(Theta_p_opt)));
 disp(disp_lambda)
 disp(disp_Theta_p)
-
 %%
 
 % plot the results
@@ -181,6 +180,7 @@ ax = gca;
 ax.FontSize = font_size;
 saveas(contour_plot_cT, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\contour_plot_cT.png','png');
 
+disp('Ex 1 done')
 %% QUESTION 2
 
 % rated velocity
@@ -278,12 +278,19 @@ saveas(omega_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY
 % poly_coeff = [pl(1) pl(2) pl(3) pl(4)-P_rated];
 % sol = roots(poly_coeff)
 
-
+disp('Question 2 done')
 %% QUESTION 3
 % first part of the question
 
-V0_vector_cut_in_out = linspace(V0_rated, V0_cut_out, V0_cut_in_out_item);
-                                                                                                         
+% Build the velocity vector adding also the V0_rated
+V0_vector_cut_in_out = linspace(V0_cutin, V0_cut_out, V0_cut_in_out_item);
+V0_vector_cut_in_out(end + 1) = V0_rated; % add the rated velocity 
+V0_vector_cut_in_out(end + 1) = 20; % add 20 (m/s) since it will need in Q5
+V0_vector_cut_in_out = sort(V0_vector_cut_in_out); % sort the vector
+V0_cut_in_out_item = V0_cut_in_out_item + 2; % increase the number of item
+
+V0_rated_pos = find(V0_vector_cut_in_out == V0_rated); % indeces of the V0_rated used for the plot
+
 pitch_vector_e3 = linspace(pitch_range_e3(1), pitch_range_e3(2), pitch_item_e3); % vector of pitch equally distributed in the range 
 
 Theta_p_limit = zeros(3, V0_cut_in_out_item); % initialize the matrix to store results
@@ -296,7 +303,6 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
   % compute lambda
   omega_e3 = omega_max;
   lambda = omega_e3 * R / V0_e3;
-
 
   % chose Theta_p
   for p = 1:pitch_item_e3 %loop over different pitch
@@ -311,21 +317,27 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
   end
 
   [~, max_pos] = max(P_e3);
+  max_pos = max_pos;
   P_e3_part1 = P_e3(1:max_pos);
   P_e3_part2 = P_e3(max_pos:end);
   Theta_p_part1 = pitch_vector_e3(1:max_pos);
   Theta_p_part2 = pitch_vector_e3(max_pos:end);
   
   Theta_p_limit(1,v) = V0_e3; % velocity
-  Theta_p_limit(2,v) = interp1(P_e3_part1, Theta_p_part1, P_rated); % pitch angle for feathering
-  Theta_p_limit(3,v) = interp1(P_e3_part2, Theta_p_part2, P_rated); % pitch angle for stall
+  if V0_e3 < V0_rated + 1e-3 % velocity below the rated one
+    Theta_p_limit(2, v) = 0;
+    Theta_p_limit(3, v) = 0;
+  else 
+    Theta_p_limit(2,v) = interp1(P_e3_part1, Theta_p_part1, P_rated); % pitch angle for feathering
+    Theta_p_limit(3,v) = interp1(P_e3_part2, Theta_p_part2, P_rated); % pitch angle for stall
+  end
 
 end
 
 pitch_vs_V0 = figure('Position', get(0, 'Screensize'));
-plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(2,:)), 'LineWidth', line_width)
+plot(Theta_p_limit(1, V0_rated_pos:end), rad2deg(Theta_p_limit(2, V0_rated_pos:end)), 'LineWidth', line_width)
 hold on
-plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(3,:)), 'LineWidth', line_width)
+plot(Theta_p_limit(1, V0_rated_pos:end), rad2deg(Theta_p_limit(3, V0_rated_pos:end)), 'LineWidth', line_width)
 plot([0 V0_rated], [0 0], 'g--', 'LineWidth', line_width)
 hold off
 xlabel('Wind speed (m/s)')
@@ -345,7 +357,7 @@ hold off
 xlabel('Wind speed (m/s)')
 ylabel('Pitch angle (°)')
 title('Pitch angle to control the power')
-legend('fathering', 'reference')
+legend('fathering', 'reference', 'Location','northwest')
 ax = gca;
 ax.FontSize = font_size;
 saveas(pitch_vs_V0_reference_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pitch_vs_V0pitch_vs_V0_reference_comparison.png','png');
@@ -358,13 +370,6 @@ P = size(1, V0_item); % initialize vector of power
 T = size(1, V0_item); % initialize vector of thrust
 cP = size(1, V0_item);
 cT = size(1, V0_item);
-
-% Build the velocity vector adding also the V0_rated
-V0_vector_cut_in_out = linspace(V0_cutin, V0_cut_out, V0_cut_in_out_item);
-V0_vector_cut_in_out(end + 1) = V0_rated; % add the rated velocity 
-V0_vector_cut_in_out(end + 1) = 20; % add 20 (m/s) since it will need in Q5
-V0_vector_cut_in_out = sort(V0_vector_cut_in_out); % sort the vector
-V0_cut_in_out_item = V0_cut_in_out_item + 2; % increase the number of item
 
 for v=1:V0_cut_in_out_item % loop over differnet velocities
   V0_actual = V0_vector_cut_in_out(v);
@@ -467,7 +472,7 @@ V0_lower(end + 1) = V0_rated;
 %% Plot the results
 
 P_vs_V0 = figure('Position', get(0, 'Screensize'));
-plot(V0_lower, P_lower);
+plot(V0_lower, P_lower, 'LineWidth', line_width);
 hold on
 plot(V0_upper, P_feat, 'LineWidth', line_width)
 plot(V0_upper, P_stall, 'LineWidth', line_width)
@@ -475,6 +480,7 @@ hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('Power (W)')
 legend('Below rated velocity', 'Feathering', 'Stalling','Location', 'southeast')
+title('Power output')
 xlim([V0_cutin V0_cut_out])
 ax = gca;
 ax.FontSize = font_size;
@@ -490,6 +496,7 @@ hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('Thrust (N)')
 legend('Below rated velocity', 'Feathering', 'Stalling')
+title('Thrust force')
 xlim([V0_cutin V0_cut_out])
 ax = gca;
 ax.FontSize = font_size;
@@ -504,6 +511,7 @@ hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('cP')
 legend('Below rated velocity', 'Feathering', 'Stalling')
+title('Power coefficient cP')
 xlim([V0_cutin V0_cut_out])
 ax = gca;
 ax.FontSize = font_size;
@@ -516,6 +524,7 @@ plot(V0_upper, cT_feat, 'LineWidth', line_width)
 plot(V0_upper, cT_stall, 'LineWidth', line_width)
 xlabel('Wind velocity V0 (m/s)')
 ylabel('cT')
+title('Thrust coefficient')
 legend('Below rated velocity', 'Feathering', 'Stalling')
 xlim([V0_cutin V0_cut_out])
 ax = gca;

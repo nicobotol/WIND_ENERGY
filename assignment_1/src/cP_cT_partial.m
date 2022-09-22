@@ -11,10 +11,10 @@ function [cp_partial, cT_partial, pt, pn] = cP_cT_partial(r_item_no_tip, r_vecto
       thick = thick_vector(i);
       c = c_vector(i);
       sigma = sigma_function(c, B, r);
-      cp_partial = zeros(1, r_item_no_tip);
-      cT_partial = zeros(1, r_item_no_tip);
-      pt = zeros(1, r_item_no_tip);
-      pn = zeros(1, r_item_no_tip);
+      %cp_partial = zeros(1, r_item_no_tip);
+      %cT_partial = zeros(1, r_item_no_tip);
+      %pt = zeros(1, r_item_no_tip);
+      %pn = zeros(1, r_item_no_tip);
 
       % compute the a and a_prime with the iterative method
       [a, a_prime, ct, cn, ~] = induction_factor_convergence(a_guess, ...

@@ -89,8 +89,8 @@ disp(disp_Theta_p)
 legend_name_cp_vs_pitch = strings(1, lambda_item);
 cp_vs_pitch = figure('Position', get(0, 'Screensize'));
 for l=1:lambda_item
-  set = [1:1:pitch_item] + (l - 1)*pitch_item;
-  plot(rad2deg(cP_cT_mat(2,set)), cP_cT_mat(3,set))
+  set1 = [1:1:pitch_item] + (l - 1)*pitch_item;
+  plot(rad2deg(cP_cT_mat(2,set1)), cP_cT_mat(3,set1))
   legend_name_cp_vs_pitch(l) = strcat("\lambda = ", num2str(lambda_vector(l)));
   hold on
 end
@@ -124,8 +124,8 @@ saveas(cp_vs_lambda, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERG
 cT_vs_pitch = figure('Position', get(0, 'Screensize'));
 legend_name_cp_vs_pitch = strings(1, lambda_item);
 for l=1:lambda_item
-  set = [1:1:pitch_item] + (l - 1)*pitch_item;
-  plot(rad2deg(cP_cT_mat(2,set)), cP_cT_mat(4,set))
+  set3 = [1:1:pitch_item] + (l - 1)*pitch_item;
+  plot(rad2deg(cP_cT_mat(2,set3)), cP_cT_mat(4,set3))
   legend_name_cp_vs_pitch(l) = strcat("\lambda = ", num2str(lambda_vector(l)));
   hold on
 end
@@ -141,8 +141,8 @@ saveas(cT_vs_pitch, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY
 cT_vs_lambda = figure('Position', get(0, 'Screensize'));
 legend_name_cp_vs_lambda = strings(1, pitch_item);
 for p=1:pitch_item
-  set2 = [1:pitch_item:size(cP_cT_mat,2)-pitch_item+1] + (p - 1);
-  plot(cP_cT_mat(1,set2), cP_cT_mat(4,set2))
+  set4 = [1:pitch_item:size(cP_cT_mat,2)-pitch_item+1] + (p - 1);
+  plot(cP_cT_mat(1,set4), cP_cT_mat(4,set4))
   legend_name_cp_vs_lambda(p) = strcat("\Theta = ", num2str(rad2deg(pitch_vector(p))), "°");
   hold on
 end
@@ -429,7 +429,7 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
       pos = v - gap; % position where to store values
 
       % feathering
-      [cp_partial_feat, cT_partial_feat, pt, pn] = cP_cT_partial(r_item_no_tip, r_vector, ...
+      [cp_partial_feat, cT_partial_feat,~,~] = cP_cT_partial(r_item_no_tip, r_vector, ...
         beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
         Theta_p_feat, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, rho, V0_actual, omega_actual, i_max);
     
@@ -440,7 +440,7 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
       T_feat(pos) = cT_feat(pos)*0.5*rho*A*V0_actual^2;
 
       % stall
-      [cp_partial_stall, cT_partial_stall, ~, ~] = cP_cT_partial(r_item_no_tip, r_vector, ...
+      [cp_partial_stall, cT_partial_stall, pt, pn] = cP_cT_partial(r_item_no_tip, r_vector, ...
         beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
         Theta_p_stall, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, rho, V0_actual, omega_actual, i_max);
     
@@ -455,6 +455,8 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
   end % stop looping over blade position r
   
   % store the vectors of pt and pn (which are span dependent)
+  pn(end + 1) = 0; % add value correspnding to the tip
+  pt(end + 1) = 0;  % add value correspnding to the tip
   pn_mat(v, :) = pn; % save the pn
   pt_mat(v, :) = pt; % save the pt
 end % stop looping over different velocities
@@ -535,6 +537,64 @@ xlim([V0_cutin V0_cut_out])
 ax = gca;
 ax.FontSize = font_size;
 saveas(cT_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\cT_vs_V0.png','png');
+
+
+%% QUESTION 4
+
+[pn_ashes, pt_ashes, r_ashes] = import_ashes(sensor_file_name); % load file from ashes
+
+pt_comparison = figure('Position', get(0, 'Screensize'));
+for v=1:size(V0_e4_vector, 2) % loop over different velocities
+V0_e4 = V0_e4_vector(v);
+pt_plt = zeros(1, r_item);
+pn_plt = zeros(1, r_item);
+
+  for i=1:r_item % loop over blade elements building the vectors to be plotted
+    pt_plt(1,i) = interp1(V0_vector_cut_in_out, pt_mat(:,i), V0_e4);
+  end
+
+% do subplots for different velocities
+subplot(2,2,v)
+plot(r_vector, pt_plt);
+hold on 
+plot(r_ashes, pt_ashes(v, :))
+xlabel('r (m)')
+ylabel('pt')
+legend('BEM code', 'Ashes')
+title(strcat('V_0 = ', num2str(V0_e4), ' (m/s)'))
+set(gca, 'FontSize', font_size/2);
+end
+sgtitle('p_t coefficients')
+
+saveas(pt_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pt_comparison.png','png');
+
+
+pn_comparison = figure('Position', get(0, 'Screensize'));
+for v=1:size(V0_e4_vector, 2) % loop over different velocities
+V0_e4 = V0_e4_vector(v);
+pt_plt = zeros(1, r_item);
+pn_plt = zeros(1, r_item);
+
+  for i=1:r_item % loop over blade elements building the vectors to be plotted
+    pn_plt(1,i) = interp1(V0_vector_cut_in_out, pn_mat(:,i), V0_e4);
+  end
+
+% do subplots for different velocities
+subplot(2,2,v)
+plot(r_vector, pn_plt)
+hold on 
+plot(r_ashes, pn_ashes(v, :))
+xlabel('r (m)')
+ylabel('pn')
+legend('BEM code', 'Ashes')
+title(strcat('V_0 = ', num2str(V0_e4), ' (m/s)'))
+set(gca, 'FontSize', font_size/2);
+end
+sgtitle('p_n coefficients')
+saveas(pn_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pt_comparison.png','png');
+
+
+
 
 %% QUESTION 5
 % first part

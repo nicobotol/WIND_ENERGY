@@ -24,6 +24,8 @@ V0_cut_in_out_item = 30; % number of division for velocity vector in Q3
 pitch_item_e3 = 30; % number of division for the pitch in Q3
 pitch_range_e3 = [-0.22 0.42];  % (rad) range in within look for picth angle 
 
+V0_e4_vector = [5, 9, 11, 20];
+
 % parameters of weibull distribution 
 A_weibull = 9;
 k_weibull = 1.9;
@@ -51,3 +53,6 @@ thick_prof = [100 60 48 36 30.1 24.1];
 % pitch parameters from DTU reference turbine pag 33
 velocity_reference = [4:1:25];
 pitch_reference = [2.751 1.966 0.896 0.000 0.000 0.000 0.000 0.000 4.502 7.266 9.292 10.958 12.499 13.896 15.200 16.432 17.618  18.758 19.860 20.927 21.963 22.975 ];
+
+% data from ashes file
+sensor_file_name = ["ashes_data\v5_data", "ashes_data\v9_data", "ashes_data\v11_data", "ashes_data\v20_data"];

@@ -55,9 +55,9 @@ for l=1:lambda_item  % loop over lambda
     cp_partial = zeros(1, r_item_no_tip);
     cT_partial = zeros(1, r_item_no_tip);
 
-    [cp_partial, cT_partial] = cP_cT_partial(r_item_no_tip, r_vector, ...
-  beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
-  Theta_p, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+    [cp_partial, cT_partial,~,~] = cP_cT_partial(r_item_no_tip, r_vector, ...
+    beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
+    Theta_p, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero,rho, 0,0, i_max);
 
     % integrate the partial results to get cp 
     pos = (l-1)*pitch_item + t;
@@ -196,15 +196,17 @@ V0_step = (V0_rated - V0_cutin) / (V0_item - 1);
 V0_vector = [V0_cutin: V0_step: V0_rated];
 %V0_vector = linespace(V0_cutin, V0_rated, V0_item);
 omega_plot = lambda_opt / R * V0_vector;
-
+%%
 omega_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_vector, omega_plot, 'LineWidth', line_width);
 hold on
 plot([V0_rated V0_cut_out], [omega_max omega_max], 'LineWidth', line_width)
 hold off
+legend('V0 < V0_{rated}', 'V0 > V0_{rated}', 'Location','southeast' )
 xlabel("Wind velocity (m/s)")
 ylabel("\omega (rad/s)")
 title("Rotational speed as function of wind velocity")
+ylim([0.3 1.1])
 ax = gca;
 ax.FontSize = font_size;
 saveas(omega_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\omega_vs_V0.png','png');
@@ -308,9 +310,9 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
   for p = 1:pitch_item_e3 %loop over different pitch
     Theta_p_e3 = pitch_vector_e3(p);
 
-    [cp_partial, cT_partial] = cP_cT_partial(r_item_no_tip, r_vector, ...
+    [cp_partial, cT_partial,~,~] = cP_cT_partial(r_item_no_tip, r_vector, ...
     beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
-    Theta_p_e3, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+    Theta_p_e3, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, rho,0,0, i_max);
 
     P_e3(p) = 0.5*omega_e3*B*rho*V0_e3^2*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
     
@@ -333,7 +335,7 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
   end
 
 end
-
+%%
 pitch_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(Theta_p_limit(1, V0_rated_pos:end), rad2deg(Theta_p_limit(2, V0_rated_pos:end)), 'LineWidth', line_width)
 hold on
@@ -343,7 +345,7 @@ hold off
 xlabel('Wind speed (m/s)')
 ylabel('Pitch angle (°)')
 title('Pitch angle to control the power')
-legend('fathering', 'stall', 'not controlled zone', 'Location', 'southwest')
+legend('feathering', 'stall', 'not controlled zone', 'Location', 'southwest')
 ax = gca;
 ax.FontSize = font_size;
 saveas(pitch_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pitch_vs_V0.png','png');
@@ -370,13 +372,12 @@ P = size(1, V0_item); % initialize vector of power
 T = size(1, V0_item); % initialize vector of thrust
 cP = size(1, V0_item);
 cT = size(1, V0_item);
+pn_mat = zeros(V0_item, r_item); % matrix of pn (for rows different velocities, for columns r)
+pt_mat = zeros(V0_item, r_item); % matrix of pt (for rows different velocities, for columns r)
 
 for v=1:V0_cut_in_out_item % loop over differnet velocities
   V0_actual = V0_vector_cut_in_out(v);
   
-  pn_partial = zeros(1, r_item); % initialize the pn vector
-  pt_partial = zeros(1, r_item); % initialize the pn vector
-
   for i=1:r_item_no_tip % loop over the blade positions 
     r = r_vector(i);
     beta = beta_vector(i);
@@ -389,9 +390,9 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
       omega_actual = V0_actual * lambda / R;
       Theta_p = Theta_p_opt;
 
-      [cp_partial, cT_partial] = cP_cT_partial(r_item_no_tip, r_vector, ...
+      [cp_partial, cT_partial, pt, pn] = cP_cT_partial(r_item_no_tip, r_vector, ...
         beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
-        Theta_p, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+        Theta_p, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, rho, V0_actual,omega_actual, i_max);
       
       cP_lower(v) = lambda*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
       cT_lower(v) = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial);
@@ -401,6 +402,7 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
 
       V0_lower(v) = V0_actual;
       V0_upper = zeros(1, V0_cut_in_out_item - size(V0_lower, 2));
+
     else
       lambda = omega_max * R / V0_actual;
       Theta_p_feat = interp1(Theta_p_limit(1,:), Theta_p_limit(2,:), V0_actual);
@@ -427,9 +429,9 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
       pos = v - gap; % position where to store values
 
       % feathering
-      [cp_partial_feat, cT_partial_feat] = cP_cT_partial(r_item_no_tip, r_vector, ...
+      [cp_partial_feat, cT_partial_feat, pt, pn] = cP_cT_partial(r_item_no_tip, r_vector, ...
         beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
-        Theta_p_feat, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+        Theta_p_feat, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, rho, V0_actual, omega_actual, i_max);
     
       cP_feat(pos) = lambda*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial_feat);
       cT_feat(pos) = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial_feat);
@@ -438,9 +440,9 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
       T_feat(pos) = cT_feat(pos)*0.5*rho*A*V0_actual^2;
 
       % stall
-      [cp_partial_stall, cT_partial_stall] = cP_cT_partial(r_item_no_tip, r_vector, ...
+      [cp_partial_stall, cT_partial_stall, ~, ~] = cP_cT_partial(r_item_no_tip, r_vector, ...
         beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
-        Theta_p_stall, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+        Theta_p_stall, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, rho, V0_actual, omega_actual, i_max);
     
       cP_stall(pos) = lambda*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial_stall);
       cT_stall(pos) = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial_stall);
@@ -451,14 +453,17 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
       V0_upper(pos) = V0_actual;
     end
   end % stop looping over blade position r
-
+  
+  % store the vectors of pt and pn (which are span dependent)
+  pn_mat(v, :) = pn; % save the pn
+  pt_mat(v, :) = pt; % save the pt
 end % stop looping over different velocities
 
 
 % Add the value corresponding to the rated velocity on the LH side 
-[cp_partial_end, cT_partial_end] = cP_cT_partial(r_item_no_tip, r_vector, ...
+[cp_partial_end, cT_partial_end, ~,~] = cP_cT_partial(r_item_no_tip, r_vector, ...
   beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda_opt, ...
-  Theta_p_opt, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
+  Theta_p_opt, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, rho,0,0, i_max);
 
 cP_lower(end + 1) = lambda_opt*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial_end);
 cT_lower(end + 1) = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial_end);
@@ -495,7 +500,7 @@ plot(V0_upper, T_stall, 'LineWidth', line_width);
 hold off
 xlabel('Wind velocity V0 (m/s)')
 ylabel('Thrust (N)')
-legend('Below rated velocity', 'Feathering', 'Stalling')
+legend('Below rated velocity', 'Feathering', 'Stalling', 'Location','northwest')
 title('Thrust force')
 xlim([V0_cutin V0_cut_out])
 ax = gca;

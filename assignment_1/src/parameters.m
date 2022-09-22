@@ -1,6 +1,6 @@
 %% PARAMETERS
 
-font_size = 20; % font szie for plots
+font_size = 32; % font szie for plots
 line_width = 2; % line width for plots
 
 i_max = 300;  % maximum number of accepted iterations

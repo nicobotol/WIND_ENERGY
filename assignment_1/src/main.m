@@ -541,7 +541,7 @@ saveas(cT_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\as
 
 %% QUESTION 4
 
-[pn_ashes, pt_ashes, r_ashes] = import_ashes(sensor_file_name); % load file from ashes
+[pn_ashes, pt_ashes, r_ashes] = import_ashes(); % load file from ashes
 
 pt_comparison = figure('Position', get(0, 'Screensize'));
 for v=1:size(V0_e4_vector, 2) % loop over different velocities
@@ -555,19 +555,23 @@ pn_plt = zeros(1, r_item);
 
 % do subplots for different velocities
 subplot(2,2,v)
-plot(r_vector, pt_plt);
+plot(r_vector, pt_plt, 'LineWidth', line_width);
 hold on 
-plot(r_ashes, pt_ashes(v, :))
+plot(r_ashes, pt_ashes(v, :), 'LineWidth', line_width)
 xlabel('r (m)')
 ylabel('pt')
-legend('BEM code', 'Ashes')
-title(strcat('V_0 = ', num2str(V0_e4), ' (m/s)'))
+%legend('BEM code', 'Ashes')
+title(strcat('V_0=', num2str(V0_e4), ' (m/s)'))
 set(gca, 'FontSize', font_size/2);
 end
-sgtitle('p_t coefficients')
+% add legend
+Lgnd = legend('show', 'BEM code', 'Ashes');
+Lgnd.Position(1) = 0.48;
+Lgnd.Position(2) = 0;
+Lgnd.NumColumns = 2;
+sgtitle('Comparison of p_t', 'FontSize', font_size)
 
 saveas(pt_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pt_comparison.png','png');
-
 
 pn_comparison = figure('Position', get(0, 'Screensize'));
 for v=1:size(V0_e4_vector, 2) % loop over different velocities
@@ -581,17 +585,22 @@ pn_plt = zeros(1, r_item);
 
 % do subplots for different velocities
 subplot(2,2,v)
-plot(r_vector, pn_plt)
+plot(r_vector, pn_plt, 'LineWidth', line_width)
 hold on 
-plot(r_ashes, pn_ashes(v, :))
+plot(r_ashes, pn_ashes(v, :), 'LineWidth', line_width)
 xlabel('r (m)')
 ylabel('pn')
-legend('BEM code', 'Ashes')
-title(strcat('V_0 = ', num2str(V0_e4), ' (m/s)'))
+%legend('BEM code', 'Ashes')
+title(strcat('V_0=', num2str(V0_e4), ' (m/s)'))
 set(gca, 'FontSize', font_size/2);
 end
-sgtitle('p_n coefficients')
-saveas(pn_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pt_comparison.png','png');
+% add legend
+Lgnd = legend('show', 'BEM code', 'Ashes');
+Lgnd.Position(1) = 0.48;
+Lgnd.Position(2) = 0;
+Lgnd.NumColumns = 2;
+sgtitle('Comparison of p_n', 'FontSize', font_size)
+saveas(pn_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pn_comparison.png','png');
 
 
 

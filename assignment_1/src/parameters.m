@@ -53,6 +53,3 @@ thick_prof = [100 60 48 36 30.1 24.1];
 % pitch parameters from DTU reference turbine pag 33
 velocity_reference = [4:1:25];
 pitch_reference = [2.751 1.966 0.896 0.000 0.000 0.000 0.000 0.000 4.502 7.266 9.292 10.958 12.499 13.896 15.200 16.432 17.618  18.758 19.860 20.927 21.963 22.975 ];
-
-% data from ashes file
-sensor_file_name = ["ashes_data\v5_data", "ashes_data\v9_data", "ashes_data\v11_data", "ashes_data\v20_data"];

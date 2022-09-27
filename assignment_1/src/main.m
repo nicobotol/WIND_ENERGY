@@ -80,7 +80,7 @@ lambda_opt = cP_cT_mat(1, cp_max_pos);
 Theta_p_opt = cP_cT_mat(2, cp_max_pos);
 
 disp_lambda = strcat('\lambda corresponding to max cP is \lambda=', num2str(lambda_opt));
-disp_Theta_p = strcat('Pitch corresponding to max cP is \Theta_p=', num2str(rad2deg(Theta_p_opt)));
+disp_Theta_p = strcat('Pitch corresponding to max cP is \theta_p=', num2str(rad2deg(Theta_p_opt)));
 disp(disp_lambda)
 disp(disp_Theta_p)
 %%
@@ -95,7 +95,7 @@ for l=1:lambda_item
   hold on
 end
 ylabel('cP')
-xlabel('\Theta_P')
+xlabel('\theta_P')
 legend(legend_name_cp_vs_pitch)
 title('cP as function of the pitch angle')
 hold off
@@ -108,7 +108,7 @@ legend_name_cp_vs_lambda = strings(1, pitch_item);
 for p=1:pitch_item
   set2 = [1:pitch_item:size(cP_cT_mat,2)-pitch_item+1] + (p - 1);
   plot(cP_cT_mat(1,set2), cP_cT_mat(3,set2))
-  legend_name_cp_vs_lambda(p) = strcat("\Theta = ", num2str(rad2deg(pitch_vector(p))),"°");
+  legend_name_cp_vs_lambda(p) = strcat("\theta = ", num2str(rad2deg(pitch_vector(p))),"°");
   hold on
 end
 ylabel('cP')
@@ -130,7 +130,7 @@ for l=1:lambda_item
   hold on
 end
 ylabel('cT')
-xlabel('\Theta_P')
+xlabel('\theta_P')
 legend(legend_name_cp_vs_pitch)
 title('cT as function of the pitch angle')
 hold off
@@ -143,7 +143,7 @@ legend_name_cp_vs_lambda = strings(1, pitch_item);
 for p=1:pitch_item
   set4 = [1:pitch_item:size(cP_cT_mat,2)-pitch_item+1] + (p - 1);
   plot(cP_cT_mat(1,set4), cP_cT_mat(4,set4))
-  legend_name_cp_vs_lambda(p) = strcat("\Theta = ", num2str(rad2deg(pitch_vector(p))), "°");
+  legend_name_cp_vs_lambda(p) = strcat("\theta = ", num2str(rad2deg(pitch_vector(p))), "°");
   hold on
 end
 ylabel('cT')
@@ -164,7 +164,7 @@ text(7.9, 0, num2str(cp_max), 'Color','r', 'FontSize', font_size)
 hold off
 colorbar()
 xlabel('\lambda')
-ylabel('\Theta_p (°)')
+ylabel('\theta_p (°)')
 title('Contour plot of c_P')
 ax = gca;
 ax.FontSize = font_size;
@@ -174,7 +174,7 @@ contour_plot_cT = figure('Position', get(0, 'Screensize'));
 contourf(lambda_vector, rad2deg(pitch_vector), contour_mat_cT);
 colorbar()
 xlabel('\lambda')
-ylabel('\Theta_p (°)')
+ylabel('\theta_p (°)')
 title('Contour plot of c_T')
 ax = gca;
 ax.FontSize = font_size;
@@ -211,76 +211,9 @@ ax = gca;
 ax.FontSize = font_size;
 saveas(omega_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\omega_vs_V0.png','png');
 
-
-
-% %% QUESTION 3
-% % first part of the question
-% 
-% % Method 1: Interpolate the 3d plot and look for the data
-% % F = scatteredInterpolant(cP_cT_mat(3,:)', cP_cT_mat(1,:)', cP_cT_mat(2,:)'); %(cP, lambda, Theta_p)
-% % rad2deg(F(0.42, 9.4))
-% 
-% % Method 2: look in the table of values
-% % V0 = 20;
-% % lambda = omega_max * R / V0;
-% % cP = P_rated / (0.5*rho*V0^3*A);
-% 
-% % Method 3: interpolate with a polynomial
-% V0_vector_cut_in_out = linspace(V0_cutin, V0_cut_out, V0_cut_in_out_item);
-%                                                                                                          
-% pitch_vector_e3 = linspace(pitch_range_e3(1), pitch_range_e3(2), pitch_item_e3); % vector of pitch equally distributed in the range 
-% P_e3 = zeros(1, pitch_item_e3);
-% 
-%   V0_e3 = 20;
-%   % compute lambda
-%   if V0_e3 < V0_rated
-%     lambda = lambda_opt;
-%     omega_e3 = V0_e3 * lambda / R;
-%   else
-%     omega_e3 = omega_max;
-%     lambda = omega_e3 * R / V0_e3;
-%   end
-% 
-%   % chose Theta_p
-%   
-%   for p = 1:pitch_item_e3 %loop over different pitch
-%     Theta_p_e3 = pitch_vector_e3(p);
-% 
-%     [cp_partial, cT_partial] = cP_cT_partial(r_item_no_tip, r_vector, ...
-%     beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
-%     Theta_p_e3, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, i_max);
-% 
-%     P_e3(p) = 0.5*omega_e3*B*rho*V0_e3^2*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
-%     
-%   end
-%  
-% %   figure()
-% %   plot(rad2deg(pitch_vector), P_e3)
-% %   
-%   % polynomial interpolation
-%   
-%   [pl, S] = polyfit(pitch_vector_e3, P_e3, 3); % coefficients of the regression
-%   P_fit = polyval(pl, pitch_vector_e3, S); % fit the regression
-% 
-%   figure()
-%   plot(pitch_vector_e3, P_e3)
-%   hold on
-%   plot(pitch_vector_e3, P_fit)
-%   yline(P_rated)
-%   hold off
-%   legend('Computed', 'Interpolated', 'Location','northwest')
-% 
-%   figure()
-%   res = P_e3 - P_fit; % residuls of the regression
-%   [h, p_value] = chi2gof(res);
-%   scatterhist(pitch_vector_e3, res, "Direction","out","Location","SouthWest")
-%   text(0, -5.5, sprintf("p-value: %f, h: %d", p_value, h), "FontSize",12);
-% 
-% % end
-% poly_coeff = [pl(1) pl(2) pl(3) pl(4)-P_rated];
-% sol = roots(poly_coeff)
-
 disp('Question 2 done')
+
+
 %% QUESTION 3
 % first part of the question
 
@@ -603,7 +536,37 @@ sgtitle('Comparison of p_n', 'FontSize', font_size)
 saveas(pn_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pn_comparison.png','png');
 
 
+% Plots for power and thrust Ashes comparison
 
+P_vs_V0_comparison = figure('Position', get(0, 'Screensize'));
+plot(V0_lower, P_lower, 'LineWidth', line_width, 'Color', 'b');
+hold on
+plot(V0_upper, P_stall, 'LineWidth', line_width, 'Color', 'b')
+plot(V0_ashes, P_ashes*1e6, 'or', 'LineWidth', 5.5)
+hold off
+xlabel('Wind velocity V0 (m/s)')
+ylabel('Power (W)')
+legend('BEM results', '', 'Ashes results','Location', 'southeast')
+title('Power output')
+xlim([V0_cutin V0_cut_out])
+ax = gca;
+ax.FontSize = font_size;
+saveas(P_vs_V0_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\P_vs_V0_comparison.png','png');
+
+T_vs_V0_comparison = figure('Position', get(0, 'Screensize'));
+plot(V0_lower, T_lower, 'LineWidth', line_width, 'Color', 'b');
+hold on
+plot(V0_upper, T_stall, 'LineWidth', line_width, 'Color', 'b');
+plot(V0_ashes, T_ashes*1e3, 'or', 'LineWidth', 5.5)
+hold off
+xlabel('Wind velocity V0 (m/s)')
+ylabel('Thrust (N)')
+legend('BEM results', '', 'Ashes results', 'Location','northwest')
+title('Thrust force')
+xlim([V0_cutin V0_cut_out])
+ax = gca;
+ax.FontSize = font_size;
+saveas(T_vs_V0_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\T_vs_V0_comparison.png','png');
 
 %% QUESTION 5
 % first part

@@ -53,3 +53,9 @@ thick_prof = [100 60 48 36 30.1 24.1];
 % pitch parameters from DTU reference turbine pag 33
 velocity_reference = [4:1:25];
 pitch_reference = [2.751 1.966 0.896 0.000 0.000 0.000 0.000 0.000 4.502 7.266 9.292 10.958 12.499 13.896 15.200 16.432 17.618  18.758 19.860 20.927 21.963 22.975 ];
+
+% Ashes comparison
+V0_ashes = [5, 9, 11, 20]; % velocities
+P_ashes = [0.894, 5.14, 9.4, 10.8]; % power(MW)
+T_ashes = [311, 1012, 1515, 668]; % thrust (kN)
+

@@ -154,13 +154,14 @@ hold off
 ax = gca;
 ax.FontSize = font_size;
 saveas(cT_vs_lambda, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\cT_vs_lambda.png','png');
-
+%%
 % contour plot
 contour_plot_cP = figure('Position', get(0, 'Screensize'));
-contourf(lambda_vector, rad2deg(pitch_vector), contour_mat_cP); % To display value on the plot use ,'ShowText','on'
+[C, h] = contourf(lambda_vector, rad2deg(pitch_vector), contour_mat_cP, 'ShowText', 'on'); % To display value on the plot use ,'ShowText','on'
+clabel(C,h,'FontSize',font_size*0.8)
 hold on
 plot(lambda_opt, Theta_p_opt, 'r.', 'MarkerSize',30)
-text(7.9, 0, num2str(cp_max), 'Color','r', 'FontSize', font_size)
+text(7.9, 0.4, num2str(cp_max), 'Color','r', 'FontSize', font_size)
 hold off
 colorbar()
 xlabel('\lambda')
@@ -169,9 +170,10 @@ title('Contour plot of c_P')
 ax = gca;
 ax.FontSize = font_size;
 saveas(contour_plot_cP, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\contour_plot_cP.png','png');
-
+%%
 contour_plot_cT = figure('Position', get(0, 'Screensize'));
-contourf(lambda_vector, rad2deg(pitch_vector), contour_mat_cT);
+[C, h] = contourf(lambda_vector, rad2deg(pitch_vector), contour_mat_cT, 'ShowText', 'on');
+clabel(C,h,'FontSize',font_size*0.8)
 colorbar()
 xlabel('\lambda')
 ylabel('\theta_p (°)')
@@ -202,7 +204,7 @@ plot(V0_vector, omega_plot, 'LineWidth', line_width);
 hold on
 plot([V0_rated V0_cut_out], [omega_max omega_max], 'LineWidth', line_width)
 hold off
-legend('V0 < V0_{rated}', 'V0 > V0_{rated}', 'Location','southeast' )
+legend('$V_0 \le V_{0,rated}$', '$V_0 > V_{0,rated}$', 'Location','southeast', 'interpreter', 'latex' )
 xlabel("Wind velocity (m/s)")
 ylabel("\omega (rad/s)")
 title("Rotational speed as function of wind velocity")
@@ -417,7 +419,7 @@ hold on
 plot(V0_upper, P_feat, 'LineWidth', line_width)
 plot(V0_upper, P_stall, 'LineWidth', line_width)
 hold off
-xlabel('Wind velocity V0 (m/s)')
+xlabel('Wind velocity V_0 (m/s)')
 ylabel('Power (W)')
 legend('Below rated velocity', 'Feathering', 'Stalling','Location', 'southeast')
 title('Power output')
@@ -433,7 +435,7 @@ hold on
 plot(V0_upper, T_feat, 'LineWidth', line_width);
 plot(V0_upper, T_stall, 'LineWidth', line_width);
 hold off
-xlabel('Wind velocity V0 (m/s)')
+xlabel('Wind velocity V_0 (m/s)')
 ylabel('Thrust (N)')
 legend('Below rated velocity', 'Feathering', 'Stalling', 'Location','northwest')
 title('Thrust force')
@@ -448,10 +450,10 @@ hold on
 plot(V0_upper, cP_feat, 'LineWidth', line_width);
 plot(V0_upper, cP_stall, 'LineWidth', line_width);
 hold off
-xlabel('Wind velocity V0 (m/s)')
-ylabel('cP')
+xlabel('Wind velocity V_0 (m/s)')
+ylabel('c_P')
 legend('Below rated velocity', 'Feathering', 'Stalling')
-title('Power coefficient cP')
+title('Power coefficient c_P')
 xlim([V0_cutin V0_cut_out])
 ax = gca;
 ax.FontSize = font_size;
@@ -462,9 +464,9 @@ plot(V0_lower, cT_lower, 'LineWidth', line_width);
 hold on
 plot(V0_upper, cT_feat, 'LineWidth', line_width)
 plot(V0_upper, cT_stall, 'LineWidth', line_width)
-xlabel('Wind velocity V0 (m/s)')
-ylabel('cT')
-title('Thrust coefficient')
+xlabel('Wind velocity V_0 (m/s)')
+ylabel('c_T')
+title('Thrust coefficient c_T')
 legend('Below rated velocity', 'Feathering', 'Stalling')
 xlim([V0_cutin V0_cut_out])
 ax = gca;

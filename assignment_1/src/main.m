@@ -219,6 +219,11 @@ disp('Question 2 done')
 %% QUESTION 3
 % first part of the question
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ATTENTION: feat and stall are inverted everywhere except for the plot 
+% (where they are correctly plotted)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % Build the velocity vector adding also the V0_rated
 V0_vector_cut_in_out = linspace(V0_cutin, V0_cut_out, V0_cut_in_out_item);
 V0_vector_cut_in_out(end + 1) = V0_rated; % add the rated velocity 
@@ -280,7 +285,7 @@ hold off
 xlabel('Wind speed (m/s)')
 ylabel('Pitch angle (°)')
 title('Pitch angle to control the power')
-legend('feathering', 'stall', 'not controlled zone', 'Location', 'southwest')
+legend('Stall','Feathering',  'Non controlled zone', 'Location', 'southwest')
 ax = gca;
 ax.FontSize = font_size;
 saveas(pitch_vs_V0, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pitch_vs_V0.png','png');
@@ -417,11 +422,11 @@ P_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, P_lower, 'LineWidth', line_width);
 hold on
 plot(V0_upper, P_feat, 'LineWidth', line_width)
-plot(V0_upper, P_stall, 'LineWidth', line_width)
+plot(V0_upper, P_stall, '--', 'LineWidth', line_width)
 hold off
 xlabel('Wind velocity V_0 (m/s)')
 ylabel('Power (W)')
-legend('Below rated velocity', 'Feathering', 'Stalling','Location', 'southeast')
+legend('Below rated velocity', 'Stalling','Location', 'southeast')
 title('Power output')
 xlim([V0_cutin V0_cut_out])
 ax = gca;
@@ -437,7 +442,7 @@ plot(V0_upper, T_stall, 'LineWidth', line_width);
 hold off
 xlabel('Wind velocity V_0 (m/s)')
 ylabel('Thrust (N)')
-legend('Below rated velocity', 'Feathering', 'Stalling', 'Location','northwest')
+legend('Below rated velocity',  'Stalling', 'Feathering', 'Location','northwest')
 title('Thrust force')
 xlim([V0_cutin V0_cut_out])
 ax = gca;
@@ -448,12 +453,12 @@ cP_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(V0_lower, cP_lower, 'LineWidth', line_width);
 hold on
 plot(V0_upper, cP_feat, 'LineWidth', line_width);
-plot(V0_upper, cP_stall, 'LineWidth', line_width);
+plot(V0_upper, cP_stall, '--', 'LineWidth', line_width);
 hold off
 xlabel('Wind velocity V_0 (m/s)')
-ylabel('c_P')
-legend('Below rated velocity', 'Feathering', 'Stalling')
-title('Power coefficient c_P')
+ylabel('c_p')
+legend('Below rated velocity', 'Stalling'  ,'Feathering')
+title('Power coefficient c_p')
 xlim([V0_cutin V0_cut_out])
 ax = gca;
 ax.FontSize = font_size;
@@ -467,7 +472,7 @@ plot(V0_upper, cT_stall, 'LineWidth', line_width)
 xlabel('Wind velocity V_0 (m/s)')
 ylabel('c_T')
 title('Thrust coefficient c_T')
-legend('Below rated velocity', 'Feathering', 'Stalling')
+legend('Below rated velocity', 'Stalling', 'Feathering')
 xlim([V0_cutin V0_cut_out])
 ax = gca;
 ax.FontSize = font_size;

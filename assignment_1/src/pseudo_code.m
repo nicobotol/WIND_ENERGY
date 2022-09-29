@@ -31,3 +31,18 @@ initialize a, a'
       go on
     end
   stop looping
+
+
+
+  initialize a velocity vector
+  initilize theta_p vector
+  loop over velocities
+    compute omega
+    compute lambda
+    loop over pitch angle
+      run BEM code
+      compute P(theta)
+    stop looping over pitch angles
+    find theta_p s.t P(theta_p) = Prated
+    store V0 and theta_p
+  stop looping over velocities

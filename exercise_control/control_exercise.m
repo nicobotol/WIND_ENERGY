@@ -12,7 +12,7 @@ MG_coefficient = 2.55e5; % generator curve coefficient
 
 R = 9.5; % rotor diameter (m)
 rho = 1.225; % air density (kg/m^3)
-V0 = 10; % wind speed (m/s)
+V0 = 10; % constant wind speed (m/s)
 V0_f = 10; % wind speed for free running turbine (m/s)
 omega_initial = 1; % initial angular velocity (rad/s)
 omega_initial_f = 1; % initial angular velocity free running turbine (rad/s)
@@ -28,12 +28,14 @@ plot(cP_vs_lambda(:,1), cP_vs_lambda(:,2))
 xlabel('\lambda')
 ylabel('cP')
 title('cP as function of \lambda')
+grid on
 
 figure()
 plot(V0_vs_time(:,1), V0_vs_time(:,2))
 title('Turbolent wind')
 xlabel('Time (s)')
 ylabel('Wind velocity (m/s)')
+grid on
 
 %% COMPUTATION OF THE ANGULAR VELOCITY, ROTOR AND GENERATOR TORQUE 
 Mr = zeros(i_max, 1); % vector for rotor torque (Nm)
@@ -66,6 +68,7 @@ plot(delta_t_vector, omega)
 xlabel('Time [s]')
 ylabel('\omega [rad/s]')
 title('Rotor angular velocity')
+grid on
 
 % plot the time evolution of the generator torque
 figure()
@@ -73,6 +76,7 @@ plot(delta_t_vector, Mg)
 xlabel('Time [s]')
 ylabel('Generator torque [Nm]')
 title('Generator torque')
+grid on
 
 % plot the time evolution of the wind torque
 figure()
@@ -80,6 +84,7 @@ plot(delta_t_vector, Mr)
 xlabel('Time [s]')
 ylabel('Wind torque [Nm]')
 title('Wind torque')
+grid on
 
 %% CALCULATION OF THE SLIP
 omega_nom = omega(end); % nominal velocity (rad/s)
@@ -90,7 +95,7 @@ SL = (omega_nom - sincronous_velocity) / sincronous_velocity; % syncronous motor
 
 V0_t = V0_vs_time(:,2); % load velocity (m/s)
 V0_item = size(V0_t, 1); % number of item of the velocity vector
-t_max = max(V0_vs_time(:,1)); % maximum time of the recorded data
+t_max = V0_vs_time(end,1); % maximum time of the recorded data
 delta_t_t = t_max / V0_item; % delta_t for the turbolent case (s)
 Mr_t = zeros(V0_item, 1);
 Mg_t = zeros(V0_item, 1);
@@ -100,20 +105,36 @@ delta_t_vector_t = zeros(V0_item, 1);
 % initialize the first elements of the vectors of omega, wind torque and
 % generator torque
 omega_t(1,1) = omega_initial;
+%omega_t(1, 1) = 1;
 lambda = omega_t(1,1) * R / V0_t(1); % compute lambda
 cP = interp1(cP_vs_lambda(:,1), cP_vs_lambda(:,2), lambda); % interpolate the table
 Mr_t(1,1) = MR(rho, V0_t(1), R, cP, omega_t(1,1)); % wind torque (Nm)
 Mg_t(1,1) = MG(omega_t(1,1), MG_coefficient, sincronous_velocity); % generator torque (Nm)
 
-for j=2:V0_item
-  lambda = omega_t(j - 1, 1) * R / V0_t(j); % compute lambda
-  cP = interp1(cP_vs_lambda(:,1), cP_vs_lambda(:,2), lambda); % interpolate the table
-  Mr_t(j,1) = MR(rho, V0_t(j), R, cP, omega_t(j - 1, 1)); % wind torque (Nm)
-  Mg_t(j,1) = MG(omega(j - 1, 1), MG_coefficient, sincronous_velocity); % generator torque (Nm)
-  omega_t(j,1) = omega_t(j - 1, 1) + delta_t_t/I*(Mr(j - 1 ,1) - Mg(j - 1,1)); % update omega
+% for j=2:V0_item
+%   lambda = omega_t(j - 1, 1) * R / V0_t(j - 1); % compute lambda
+%   cP = interp1(cP_vs_lambda(:,1), cP_vs_lambda(:,2), lambda); % interpolate the table
+%   Mr_t(j, 1) = MR(rho, V0_t(j-1), R, cP, omega_t(j - 1, 1));
+%   Mg_t(j, 1) = MG(omega_t(j - 1), MG_coefficient, sincronous_velocity);
+%   omega_t(j,1) = omega_t(j - 1, 1) + delta_t_t/I*(Mr_t(j, 1) - Mg_t(j, 1)); % update omega
+%   delta_t_vector_t(j, 1) = delta_t_vector_t(j - 1, 1) + delta_t_t; % store the time for the plot
+% end
 
-  delta_t_vector_t(j, 1) = delta_t_vector_t(j - 1, 1) + delta_t_t; % store the time for the plot
+for j=2:V0_item
+  omega_t(j, 1) = omega_t(j - 1, 1) + delta_t_t / I * (Mr_t(j - 1, 1) - Mg_t(j - 1, 1));
+  Mg_t(j, 1) = MG(omega_t(j - 1, 1), MG_coefficient, sincronous_velocity);
+  lambda = omega_t(j, 1) * R / V0_t(j);
+  cP = interp1(cP_vs_lambda(:, 1), cP_vs_lambda(:, 2), lambda);
+  Mr_t(j, 1) = MR(rho, V0_t(j), R, cP, omega_t(j, 1));
+  delta_t_vector_t(j, 1) = delta_t_vector_t(j - 1, 1) + delta_t_t;
 end
+
+
+% update omega
+% update mg
+% update lambda
+% update mr
+
 
 % plot the time evolution of the roataional speed
 figure()
@@ -121,6 +142,7 @@ plot(delta_t_vector_t, omega_t)
 xlabel('Time [s]')
 ylabel('\omega [rad/s]')
 title('Rotor angular velocity - Turbolent wind')
+grid on
 
 % plot the time evolution of the generator torque
 figure()
@@ -128,6 +150,7 @@ plot(delta_t_vector_t, Mg_t)
 xlabel('Time [s]')
 ylabel('Generator torque [Nm]')
 title('Generator torque - Turbolent wind')
+grid on
 
 % plot the time evolution of the wind torque
 figure()
@@ -135,6 +158,7 @@ plot(delta_t_vector_t, Mr_t)
 xlabel('Time [s]')
 ylabel('Wind torque [Nm]')
 title('Wind torque - Turbolent wind')
+grid on
 
 %% SIMULATION OF THE FREE RUNNING TURBINE
 
@@ -150,15 +174,14 @@ delta_t_vector_f = zeros(V0_item, 1);
 omega_f(1,1) = omega_initial_f;
 lambda = omega_f(1,1) * R / V0_f; % compute lambda
 cP = interp1(cP_vs_lambda(:,1), cP_vs_lambda(:,2), lambda); % interpolate the table
-Mr_f(1,1) = MR(rho, V0_f, R, cP, omega_t(1,1)); % wind torque (Nm)
+Mr_f(1,1) = MR(rho, V0_f, R, cP, omega_f(1,1)); % wind torque (Nm)
 
 for j=2:V0_item
-  lambda = omega_f(j - 1, 1) * R / V0_f; % compute lambda
-  cP = interp1(cP_vs_lambda(:,1), cP_vs_lambda(:,2), lambda); % interpolate the table
-  Mr_f(j, 1) = MR(rho, V0_f, R, cP, omega_f(j - 1, 1)); % wind torque (Nm)
-  omega_f(j, 1) = omega_f(j - 1, 1) + delta_t_f/I*Mr(j - 1 ,1); % update omega
-
-  delta_t_vector_f(j, 1) = delta_t_vector_f(j - 1, 1) + delta_t_f; % store the time for the plot
+  omega_f(j, 1) = omega_f(j - 1, 1) + delta_t_f / I * Mr_f(j - 1, 1);
+  lambda = omega_f(j, 1) * R / V0_f;
+  cP = interp1(cP_vs_lambda(:, 1), cP_vs_lambda(:, 2), lambda);
+  Mr_f(j, 1) = MR(rho, V0_f, R, cP, omega_f(j, 1));
+  delta_t_vector_f(j, 1) = delta_t_vector_f(j - 1, 1) + delta_t_f;
 end
 
 % plot the time evolution of the roataional speed
@@ -167,6 +190,7 @@ plot(delta_t_vector_f, omega_f)
 xlabel('Time [s]')
 ylabel('\omega [rad/s]')
 title('Rotor angular velocity - Free running')
+grid on
 
 % plot the time evolution of the wind torque
 figure()
@@ -174,3 +198,4 @@ plot(delta_t_vector_f, Mr_f)
 xlabel('Time [s]')
 ylabel('Wind torque [Nm]')
 title('Wind torque - Free running')
+grid on

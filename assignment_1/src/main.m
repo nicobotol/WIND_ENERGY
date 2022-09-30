@@ -205,7 +205,7 @@ hold on
 plot([V0_rated V0_cut_out], [omega_max omega_max], 'LineWidth', line_width)
 hold off
 legend('$V_0 \le V_{0,rated}$', '$V_0 > V_{0,rated}$', 'Location','southeast', 'interpreter', 'latex' )
-xlabel("Wind velocity (m/s)")
+xlabel("Wind velocity V_0 (m/s)")
 ylabel("\omega (rad/s)")
 title("Rotational speed as function of wind velocity")
 ylim([0.3 1.1])
@@ -282,7 +282,7 @@ hold on
 plot(Theta_p_limit(1, V0_rated_pos:end), rad2deg(Theta_p_limit(3, V0_rated_pos:end)), 'LineWidth', line_width)
 plot([0 V0_rated], [0 0], 'g--', 'LineWidth', line_width)
 hold off
-xlabel('Wind speed (m/s)')
+xlabel('Wind velocity V_0 (m/s)')
 ylabel('Pitch angle (°)')
 title('Pitch angle to control the power')
 legend('Stall','Feathering',  'Non controlled zone', 'Location', 'southwest')
@@ -296,7 +296,7 @@ plot(Theta_p_limit(1,:), rad2deg(Theta_p_limit(3,:)), 'LineWidth', line_width)
 hold on
 plot(velocity_reference, pitch_reference, 'LineWidth', line_width)
 hold off
-xlabel('Wind speed (m/s)')
+xlabel('Wind velocity V_0 (m/s)')
 ylabel('Pitch angle (°)')
 title('Pitch angle to control the power')
 legend('fathering', 'reference', 'Location','northwest')
@@ -426,7 +426,7 @@ plot(V0_upper, P_stall, '--', 'LineWidth', line_width)
 hold off
 xlabel('Wind velocity V_0 (m/s)')
 ylabel('Power (W)')
-legend('Below rated velocity', 'Stalling','Location', 'southeast')
+legend('Below rated velocity', 'Stalling', 'Feathering', 'Location', 'southeast')
 title('Power output')
 xlim([V0_cutin V0_cut_out])
 ax = gca;
@@ -542,7 +542,7 @@ Lgnd.NumColumns = 2;
 sgtitle('Comparison of p_n', 'FontSize', font_size)
 saveas(pn_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pn_comparison.png','png');
 
-
+%%
 % Plots for power and thrust Ashes comparison
 
 P_vs_V0_comparison = figure('Position', get(0, 'Screensize'));
@@ -551,7 +551,7 @@ hold on
 plot(V0_upper, P_stall, 'LineWidth', line_width, 'Color', 'b')
 plot(V0_ashes, P_ashes*1e6, 'or', 'LineWidth', 5.5)
 hold off
-xlabel('Wind velocity V0 (m/s)')
+xlabel('Wind velocity V_0 (m/s)')
 ylabel('Power (W)')
 legend('BEM results', '', 'Ashes results','Location', 'southeast')
 title('Power output')
@@ -566,7 +566,7 @@ hold on
 plot(V0_upper, T_stall, 'LineWidth', line_width, 'Color', 'b');
 plot(V0_ashes, T_ashes*1e3, 'or', 'LineWidth', 5.5)
 hold off
-xlabel('Wind velocity V0 (m/s)')
+xlabel('Wind velocity V_0 (m/s)')
 ylabel('Thrust (N)')
 legend('BEM results', '', 'Ashes results', 'Location','northwest')
 title('Thrust force')
@@ -574,6 +574,24 @@ xlim([V0_cutin V0_cut_out])
 ax = gca;
 ax.FontSize = font_size;
 saveas(T_vs_V0_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\T_vs_V0_comparison.png','png');
+%%
+
+V0_pitch_comparison = [8 10 12 14 16 18 20 22 24]; % velocities teste din ashes for the pitch
+ashes_pitch = [0 0 4.3 9.0 12.1 14.75 17.1 19.3 21.33]; % ashes pitch angle
+
+pitch_vs_V0_comparison = figure('Position', get(0, 'Screensize'));
+plot(V0_vector_cut_in_out, rad2deg(Theta_p_limit(3, :)), 'LineWidth', line_width, 'Color', 'b');
+hold on
+plot(V0_pitch_comparison, ashes_pitch, 'or', 'LineWidth', 5.5)
+hold off
+xlabel('Wind velocity V_0 (m/s)')
+ylabel('\theta_p (°)')
+legend('BEM results', 'Ashes results', 'Location','northwest')
+title('Pitch angle')
+xlim([V0_cutin V0_cut_out])
+ax = gca;
+ax.FontSize = font_size;
+saveas(pitch_vs_V0_comparison, 'C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO\WIND_ENERGY\assignment_1\figures\pitch_vs_V0_comparison.png','png');
 
 %% QUESTION 5
 % first part
@@ -600,7 +618,7 @@ end
 
 weibull_plot = figure('Position', get(0, 'Screensize'));
 plot(V0_weibull, weibull, 'LineWidth', line_width) 
-xlabel('Wind speed (m/s)')
+xlabel('Wind velocity V_0 (m/s)')
 ylabel('Weibull PDF')
 title('Weibull pdf as function of the wind velocity')
 ax = gca;

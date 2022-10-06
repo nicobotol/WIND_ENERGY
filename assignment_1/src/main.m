@@ -220,8 +220,8 @@ disp('Question 2 done')
 % first part of the question
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ATTENTION: feat and stall are inverted everywhere except for the plot 
-% (where they are correctly plotted)
+% ATTENTION: feat and stall are inverted everywhere except for the labels of 
+% plots (where they are correctly plotted)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Build the velocity vector adding also the V0_rated

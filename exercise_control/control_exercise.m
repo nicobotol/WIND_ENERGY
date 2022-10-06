@@ -18,7 +18,7 @@ omega_initial = 1; % initial angular velocity (rad/s)
 omega_initial_f = 1; % initial angular velocity free running turbine (rad/s)
 I = 1.5e4; % rotor inertia (kgm^2)
 
-%% PLOT OF THE LOADED DATA
+%% Q1 & Q2: PLOT OF THE LOADED DATA
 % load the data form the table
 cP_vs_lambda = load('Cp_Lambda.txt');
 V0_vs_time = load('usim.dat');
@@ -37,7 +37,7 @@ xlabel('Time (s)')
 ylabel('Wind velocity (m/s)')
 grid on
 
-%% COMPUTATION OF THE ANGULAR VELOCITY, ROTOR AND GENERATOR TORQUE 
+%% Q4: COMPUTATION OF THE ANGULAR VELOCITY, ROTOR AND GENERATOR TORQUE 
 Mr = zeros(i_max, 1); % vector for rotor torque (Nm)
 Mg = zeros(i_max, 1); % vector for generator torque (Nm)
 omega = zeros(i_max, 1); % vector for angular velocity (rad/s)
@@ -86,13 +86,14 @@ ylabel('Wind torque [Nm]')
 title('Wind torque')
 grid on
 
-%% CALCULATION OF THE SLIP
+%% Q5: CALCULATION OF THE SLIP
 omega_nom = omega(end); % nominal velocity (rad/s)
 SL = (omega_nom - sincronous_velocity) / sincronous_velocity; % syncronous motor slip
 
-%% COMPUTATION OF THE ANGULAR VELOCITY, ROTOR AND GENERATOR TORQUE FOR 
+%% Q6: COMPUTATION OF THE ANGULAR VELOCITY, ROTOR AND GENERATOR TORQUE FOR 
 %% TURBOLENT WIND INFLOW
 
+clear lambda
 V0_t = V0_vs_time(:,2); % load velocity (m/s)
 V0_item = size(V0_t, 1); % number of item of the velocity vector
 t_max = V0_vs_time(end,1); % maximum time of the recorded data
@@ -105,7 +106,6 @@ delta_t_vector_t = zeros(V0_item, 1);
 % initialize the first elements of the vectors of omega, wind torque and
 % generator torque
 omega_t(1,1) = omega_initial;
-%omega_t(1, 1) = 1;
 lambda = omega_t(1,1) * R / V0_t(1); % compute lambda
 cP = interp1(cP_vs_lambda(:,1), cP_vs_lambda(:,2), lambda); % interpolate the table
 Mr_t(1,1) = MR(rho, V0_t(1), R, cP, omega_t(1,1)); % wind torque (Nm)
@@ -121,7 +121,7 @@ Mg_t(1,1) = MG(omega_t(1,1), MG_coefficient, sincronous_velocity); % generator t
 % end
 
 for j=2:V0_item
-  omega_t(j, 1) = omega_t(j - 1, 1) + delta_t_t / I * (Mr_t(j - 1, 1) - Mg_t(j - 1, 1));
+  omega_t(j, 1) = omega_t(j - 1, 1) + delta_t_t * (Mr_t(j - 1, 1) - Mg_t(j - 1, 1)) / I;
   Mg_t(j, 1) = MG(omega_t(j - 1, 1), MG_coefficient, sincronous_velocity);
   lambda = omega_t(j, 1) * R / V0_t(j);
   cP = interp1(cP_vs_lambda(:, 1), cP_vs_lambda(:, 2), lambda);

@@ -1,7 +1,7 @@
 clear
 close all
 clc
-
+line_size = 1.75;
 %% Load airfoil data
 load_data = importdata('airfoil.txt');
 aoa = load_data.data(:, 1); % angle of attack
@@ -14,15 +14,16 @@ V0 = 8; % (m/s)
 omega = 14; % (rad/s)
 S = 0.2; % Solidity
 rho = 1.225; % (kg/m^3)
-B = 1;
 
-blades = [1, 3]; % blades to investigate
+blades = [1, 2, 3]; % blades to investigate
 blades_size = size(blades, 2); % number of blade configuration to investigate
 
-delta_t = (5*pi)/(180*omega); % first guess fot time step increment
+delta_t = (1*pi)/(180*omega); % first guess fot time step increment
 time_final = 10; % time when to stop the analysis
-time_plot_initial = 0.0001; % time when start to plot values
-time_plot_final = 9; % time when stop to plot the values
+time_plot_initial = 0.0006; % time when start to plot values
+time_plot_final = 7; % time when stop to plot the values
+t_start = 0.0001; % (s) time when start integration
+t_stop = 7;  % (s) time when stop integration
 
 if (time_plot_final > time_final)
   error('Error in time length!')
@@ -47,6 +48,7 @@ cT_vector = zeros(ntime, blades_size);
 px_sum = 0;
 py_sum = 0;
 pt_sum = 0;
+% struct_loads{} = zeros(ntime, 2*blades_size);
 
 % initialize a, theta1, t
 a(1) = 0;
@@ -78,7 +80,12 @@ for b=1:blades_size
       px_sum = px_sum + px;
       py_sum = py_sum + py;
       pt_sum = pt_sum + pt;
-  
+
+      % save load blade by blade
+      struct_loads{b}.p(n, 3*i - 2) = px; 
+      struct_loads{b}.p(n, 3*i - 1 ) = py;
+      struct_loads{b}.p(n, 3*i ) = pt;
+
   %     theta_i = 0; % clean theta_i for the next iteration
     end
   
@@ -103,22 +110,28 @@ for b=1:blades_size
   end
 end
 
-% get the mean cP between 5 and 10 seconds
-t_start = 5; % (s) time when start integration
-t_stop = 10;
-[sum_cp] =  trapezoidal_integral(t_start, t_stop, cp_vector, t);
-cP_mean = sum_cp / (t_stop - t_start);
 
-% plot the results
+%% get the mean cP between 5 and 10 seconds
+
+for i = 1:blades_size
+  [sum_cp] =  trapezoidal_integral(t_start, t_stop, cp_vector(:, i), t);
+  [sum_cT] =  trapezoidal_integral(t_start, t_stop, cT_vector(:, i), t);
+  cP_mean = sum_cp / (t_stop - t_start);
+  cT_mean = sum_cT / (t_stop - t_start);
+  disp( strcat('For B=', num2str(blades(i)), ': cp=', num2str(cP_mean), '; cT=', num2str(cT_mean)))
+end
+
+%% plot the results
 %build the legend
 legend_name = strings(1, blades_size);
 for b=1:blades_size
   legend_name(b) = strcat("B = ", num2str(blades(b)));
 end
 
+% plot px for every blade number
 figure()
 for b=1:blades_size
-plot(t(s_initial:s_final), px_vector(s_initial:s_final, b));
+plot(t(s_initial:s_final), px_vector(s_initial:s_final, b), 'LineWidth', line_size);
 hold on
 end
 hold off
@@ -127,9 +140,11 @@ xlabel('Time (s)')
 ylabel('px (N)')
 title('px as function of time')
 
+
+% plot py for every blade number
 figure()
 for b=1:blades_size
-plot(t(s_initial:s_final), py_vector(s_initial:s_final, b));
+plot(t(s_initial:s_final), py_vector(s_initial:s_final, b), 'LineWidth', line_size);
 hold on
 end
 hold off
@@ -138,9 +153,10 @@ xlabel('Time (s)')
 ylabel('py (N)')
 title('py as function of time')
 
+% plot cp for every blade
 figure()
 for b=1:blades_size
-plot(t(s_initial:s_final), cp_vector(s_initial:s_final, b));
+plot(t(s_initial:s_final), cp_vector(s_initial:s_final, b), 'LineWidth', line_size);
 hold on
 end
 hold off
@@ -149,9 +165,10 @@ xlabel('Time (s)')
 ylabel('cP')
 title('cP as function of time')
 
+% plot cT for every blade
 figure()
 for b=1:blades_size
-plot(t(s_initial:s_final), cT_vector(s_initial:s_final, b));
+plot(t(s_initial:s_final), cT_vector(s_initial:s_final, b), 'LineWidth', line_size);
 hold on
 end
 hold off
@@ -160,14 +177,70 @@ xlabel('Time (s)')
 ylabel('cT')
 title('cT as function of time')
 
+% plot px and py of one blade on the same graph
 for b=1:blades_size
   figure()
-  plot(t(s_initial:s_final), px_vector(s_initial:s_final, b));
+  plot(t(s_initial:s_final), px_vector(s_initial:s_final, b), 'LineWidth', line_size);
   hold on
-  plot(t(s_initial:s_final), py_vector(s_initial:s_final, b));
+  plot(t(s_initial:s_final), py_vector(s_initial:s_final, b), 'LineWidth', line_size);
   hold off
   xlabel('Time (s)')
   ylabel('load (N/m)')
   legend('px', 'py')
   title(strcat('total load for B=', num2str(blades(b))))
+end
+
+% plot cp and cT of one blade on the same graph
+for b=1:blades_size
+  figure()
+  plot(t(s_initial:s_final), cp_vector(s_initial:s_final, b), 'LineWidth', line_size);
+  hold on
+  plot(t(s_initial:s_final), cT_vector(s_initial:s_final, b), 'LineWidth', line_size);
+  hold off
+  xlabel('Time (s)')
+  ylabel('coeff.')
+  legend('cp', 'cT')
+  title(strcat('total load for B=', num2str(blades(b))))
+end
+
+% plot px on all the blades for one blade configuration
+for b=1:blades_size
+  figure()
+  for i=1:blades(b)
+    plot(t(s_initial:s_final), struct_loads{b}.p((s_initial:s_final), i*3 - 2), 'LineWidth', line_size);
+    hold on
+  end
+  hold off
+  xlabel('Time (s)')
+  ylabel('load (N/m)')
+  legend(legend_name)
+  title(strcat('px load for B=', num2str(blades(b))))
+end
+
+% plot py on all the blades for one blade configuration
+for b=1:blades_size
+  figure()
+  for i=1:blades(b)
+    plot(t(s_initial:s_final), struct_loads{b}.p((s_initial:s_final), i*3 - 1), 'LineWidth', line_size);
+    hold on
+  end
+  hold off
+  xlabel('Time (s)')
+  ylabel('load (N/m)')
+  legend(legend_name)
+  title(strcat('py load for B=', num2str(blades(b))))
+end
+
+% plot pt on all the blades for one blade configuration
+for b=1:blades_size
+  figure()
+  for i=1:blades(b)
+    plot(t(s_initial:s_final), struct_loads{b}.p((s_initial:s_final), i*3), 'LineWidth', line_size);
+    hold on
+  end
+  hold off
+  xlabel('Time (s)')
+  ylabel('load (N/m)')
+  legend(legend_name)
+  title(strcat('pt load for B=', num2str(blades(b))))
 end

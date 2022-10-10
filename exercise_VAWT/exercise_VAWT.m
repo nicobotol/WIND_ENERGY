@@ -15,16 +15,14 @@ omega = 14; % (rad/s)
 S = 0.2; % Solidity
 rho = 1.225; % (kg/m^3)
 
-blades = [1, 2, 3]; % blades to investigate
+blades = [1 2 3]; % blades to investigate
 blades_size = size(blades, 2); % number of blade configuration to investigate
-
 delta_t = (1*pi)/(180*omega); % first guess fot time step increment
-time_final = 10; % time when to stop the analysis
+time_final = 20; % time when to stop the analysis
 time_plot_initial = 0.0006; % time when start to plot values
 time_plot_final = 7; % time when stop to plot the values
-t_start = 0.0001; % (s) time when start integration
-t_stop = 7;  % (s) time when stop integration
-
+t_start = 4.5; % (s) time when start integration
+t_stop = 20;  % (s) time when stop integration
 if (time_plot_final > time_final)
   error('Error in time length!')
 end
@@ -95,7 +93,7 @@ for b=1:blades_size
     if a(n - 1) <= 1/3
       fg = 1;
     else
-      fg = 0.25*(5 - a(n - 1));
+      fg = 0.25*(5 - 3*a(n - 1));
     end
   
     aqs = cT / (4*(1 - fg*a(n - 1)));
@@ -121,6 +119,13 @@ for i = 1:blades_size
   disp( strcat('For B=', num2str(blades(i)), ': cp=', num2str(cP_mean), '; cT=', num2str(cT_mean)))
 end
 
+for i = 1:blades_size
+  [sum_cp] =  trapezoidal_integral(t_stop - 2*pi/omega, t_stop, cp_vector(:, i), t);
+  [sum_cT] =  trapezoidal_integral(t_stop - 2*pi/omega, t_stop, cT_vector(:, i), t);
+  cP_mean = sum_cp / (2*pi/omega);
+  cT_mean = sum_cT / (2*pi/omega);
+  disp( strcat('For B=', num2str(blades(i)), ': cp=', num2str(cP_mean), '; cT=', num2str(cT_mean)))
+end
 %% plot the results
 %build the legend
 legend_name = strings(1, blades_size);
@@ -229,6 +234,20 @@ for b=1:blades_size
   ylabel('load (N/m)')
   legend(legend_name)
   title(strcat('py load for B=', num2str(blades(b))))
+end
+
+% plot pt on all the blades for one blade configuration
+for b=1:blades_size
+  figure()
+  for i=1:blades(b)
+    plot(t(s_initial:s_final), struct_loads{b}.p((s_initial:s_final), i*3), 'LineWidth', line_size);
+    hold on
+  end
+  hold off
+  xlabel('Time (s)')
+  ylabel('load (N/m)')
+  legend(legend_name)
+  title(strcat('pt load for B=', num2str(blades(b))))
 end
 
 % plot pt on all the blades for one blade configuration

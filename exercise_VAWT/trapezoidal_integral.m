@@ -7,7 +7,7 @@ s_size = s_stop-s_start-1;
 res = 0;
 
 for i=2:s_size
-  res = res + 0.5*(y_vect(i) + y_vect(i-1))*delta_x;
+  res = res + 0.5*(y_vect(i + s_start) + y_vect(i + s_start - 1))*delta_x;
 end
 
 end

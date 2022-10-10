@@ -8,11 +8,16 @@ Vrel_y = -omega*x + Wy;
 
 Vnorm = (V0 - Wx)*sin(theta) - Wy*cos(theta);
 Vtan = (V0 - Wx)*cos(theta) + Wy*sin(theta) + omega*R;
-Vrel_sq = Vnorm^2 + Vtan^2;
+Vrel_sq = Vrel_x^2 + Vrel_y^2;
+%Vrel_sq = Vnorm^2 + Vtan^2;
 alpha = atan(Vnorm / Vtan); % (rad)
+alphadeg = alpha*180/pi;
 
-cl = interp1(deg2rad(aoa), cl_data, alpha);
-cd = interp1(deg2rad(aoa), cd_data, alpha);
+% cl = interp1(deg2rad(aoa), cl_data, alpha);
+% cd = interp1(deg2rad(aoa), cd_data, alpha);
+
+cl = interp1(aoa, cl_data, alphadeg);
+cd = interp1(aoa, cd_data, alphadeg);
 
 l = 0.5*rho*Vrel_sq*c*cl;
 d = 0.5*rho*Vrel_sq*c*cd;

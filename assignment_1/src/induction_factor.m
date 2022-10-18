@@ -1,4 +1,6 @@
-function [a, a_prime, ct, cn, phi] = induction_factor(a, a_prime, R, r, lambda, beta, Theta_p, sigma, B, aoa_mat, cl_mat, cd_mat, thick_vector, thick)
+function [a, a_prime, ct, cn, phi] = induction_factor(a, a_prime, R, r, ...
+  lambda, beta, Theta_p, sigma, B, aoa_mat, cl_mat, cd_mat, thick_vector, ...
+  thick)
 %   Function to calculate a and a_prime
 % a -> (INPUT) initial guess of axial induction factor
 % a -> (OUTPUT)  axial induction factor after iterations
@@ -24,7 +26,8 @@ function [a, a_prime, ct, cn, phi] = induction_factor(a, a_prime, R, r, lambda, 
   alpha = phi - Theta;  % angle of attack
 
   % function to interpolate cl and cd for the given value of alpha and t/c
-  [cl, cd] = interpolate_cl_cd(aoa_mat, cl_mat, cd_mat, thick_vector, alpha, thick);
+  [cl, cd] = interpolate_cl_cd(aoa_mat, cl_mat, cd_mat, thick_vector, ...
+    alpha, thick);
 
   cn = cl*cos(phi) + cd*sin(phi); 
   ct = cl*sin(phi) - cd*cos(phi); 

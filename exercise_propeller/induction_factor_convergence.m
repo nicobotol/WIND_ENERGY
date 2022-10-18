@@ -1,6 +1,6 @@
 function [a, a_prime, ct, cn, phi, F] = ...
-induction_factor_convergence(a_guess, a_prime_guess, R, r, lambda, beta, ...
-Theta_p, cd, cl, c, B, sigma, fake_zero,  i_max)
+induction_factor_convergence(a_guess, a_prime_guess, R, r, lambda, ...
+ cd, cl, B, sigma, fake_zero,  i_max,  beta_correction)
 % This function performs the calculations to make the induction functions
 % converge
 % a -> (INPUT) initial guess of axial induction factor
@@ -31,7 +31,8 @@ for i = 1:i_max
   a_prime_old = a_prime;
   
   % update a and a_prime
-  [a, a_prime, ct, cn, phi, F] = induction_factor(a, a_prime,R, r, cd, cl, B, sigma, lambda);
+  [a, a_prime, ct, cn, phi, F] = induction_factor(a, a_prime, R, r, cd, ...
+    cl, B, sigma, lambda,  beta_correction);
   
   % compute the error
   epsilon = abs(a_old - a);

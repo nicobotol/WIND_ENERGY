@@ -7,7 +7,7 @@ a_prime = a_prime_guess;
 for i = 1: i_max
   tan_phi = (1 + a)*V0 / ((1 - a_prime)*omega*r); 
   phi = atan(tan_phi);
-  alpha = theta - phi;
+  alpha = theta - phi*180/(pi);
   
   cl = 0.1 * alpha + 0.4; % load cl
   cd = cd_constant; % load ct

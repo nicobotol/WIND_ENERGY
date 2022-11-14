@@ -37,13 +37,7 @@ ylabel('Generator frequency [Hz]')
 %% Question 2
 
 % Losses
-P_loss = Ig.^2*Rs; % Loss in the resistance (W)
-Q_loss = Ig.^2.*omega_E*Ls; % Loss in the inductance (VAR)
-
-% Output power
-P_g = flux.*omega_M.*cos(delta); % (W)
-Q_g = flux.*omega_M.*sin(delta); % (VAR)
-S_g = sqrt(P_g.^2 + Q_g.^2); % (VA)
+[P_loss, Q_loss, S_loss, P_g, Q_g, S_g] = losses(Ig, omega_E, delta, Ls, Rs, flux);
 
 figure()
 plot(omega_M, P_loss)
@@ -53,3 +47,32 @@ hold off
 legend('P', 'Q')
 xlabel('Rotational speed [rad/s]')
 ylabel('Power losses')
+
+% Output complex power
+figure()
+plot(omega_M, S_g)
+xlabel('Rotational speed [rad/s]')
+ylabel('Complex power output [VAR]')
+%%
+% verify wheter the sum of the power is consistent
+figure()
+plot(omega_M, S_loss + S_g)
+hold on
+plot(omega_M, Pmech)
+hold off
+legend('Ploss+Pg', 'Pmech')
+xlabel('Rotational speed [rad/s]')
+ylabel('Power [W]')
+
+%% Question 3
+
+omega = 2*pi*f_grid; % angular velocity grid side
+Vb = Vb_ll / sqrt(3); % phase voltage (V)
+
+[Ppoc, Qpoc] = transformer(P_g, Vb, Cc, n, R1, Lm, L1, omega, Vpoc);
+
+% POC active power
+figure()
+plot(omega_M, Ppoc)
+xlabel('Rotational speed [rad/s]')
+ylabel('POC power [W]')

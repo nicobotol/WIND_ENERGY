@@ -10,3 +10,21 @@ R = 89.17; % generator rotor radius (m)
 A = pi*R^2; % blade swapt area
 cp_opt = 0.465; % optimal cp
 lambda_opt = 7.857; % optimal lambda
+
+% transformers parameters
+L = 65; % km of cables
+c_cable = 0.1E-6; % capacity for unit length (F)
+l_cable = 0.5E-3; % inductance for unit length (H)
+r_cable = 0.1; % resistance for unit length (ohm)
+Cc = c_cable*L; % cable capacity
+Lc = l_cable*L;
+Rc = r_cable*L;
+n = 4/33; % transformer ratio
+Lm = 0.046; % transformer magnetizing inductance (H)
+L1 = 3.6E-3; % inductance of the primary (H)
+L21 = L1; % inductance of the secondary referred to the primary
+R1 = 0.025; % resitance of the primary (Ohm)
+R21 = 0.025; % resitance of the secondary referred to the primary (Ohm)
+f_grid = 50; % grid side frequency (Hz)
+Vb_ll = 4000; % line to line voltage VSC-B (V)
+Vpoc = 33000; % line to line voltage POC (V)

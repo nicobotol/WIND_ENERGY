@@ -1,11 +1,16 @@
 % Exercise 1: Implementation of the BEM code
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% In this version of the code the airfoil data are considered independent
+% and the angle of attack is provided
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % parameters
 V0 = 8; % wind speed (m/s)
 omega = 2.61; % rotational speed (rad/s)
 Theta_p = -3*pi/180; % pitch angle (rad)
 beta = 2*pi/180; % twist angle (rad)
-c = 1.5; % chord lenght (m)
+c = 0.5; % chord lenght (m)
 cl = 0.5; % load coefficient
 cd = 0.01; % drag coefficient
 r = 24.5; % actual radius (m)

@@ -6,8 +6,8 @@ Q_loss = Ig.^2.*omega_E*Ls; % Loss in the inductance (VAR)
 S_loss = sqrt(P_loss.^2 + Q_loss.^2);
 
 % Output power
-P_g = flux.*omega_E.*Ig.*cos(delta); % (W)
-Q_g = flux.*omega_E.*Ig.*sin(delta); % (VAR)
+P_g = 3*flux.*omega_E.*Ig.*cos(delta); % (W)
+Q_g = 3*flux.*omega_E.*Ig.*sin(delta); % (VAR)
 S_g = sqrt(P_g.^2 + Q_g.^2); % (VA)
 
 end

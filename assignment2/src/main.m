@@ -10,28 +10,29 @@ parameters
 %% Question 1
 omega_M = 0.001:0.5:omega_M_max; % (rpm)
 omega_M = omega_M*pi/30; % (rad/s)
+rpm = 30/pi*omega_M;
 
 Pmech = 0.5*rho*A*cp_opt*(omega_M*R/lambda_opt).^3; % mechanical power from the wind (W)
 [Ig, Vg, fg, omega_E, delta] = rotor_equation(Rs, Ls, pp, flux, omega_M, Pmech);
 
 figure()
-plot(omega_M, Pmech)
-xlabel('Rotational speed [rad/s]')
+plot(rpm, Pmech)
+xlabel('Rotational speed [rpm]')
 ylabel('Incoming power [W]')
 
 figure()
-plot(omega_M, Ig)
-xlabel('Rotational speed [rad/s]')
+plot(rpm, Ig)
+xlabel('Rotational speed [rpm]')
 ylabel('Ig [A]')
 
 figure()
-plot(omega_M, Vg)
-xlabel('Rotational speed [rad/s]')
+plot(rpm, Vg)
+xlabel('Rotational speed [rpm]')
 ylabel('Vg [V]')
 
 figure()
-plot(omega_M, fg)
-xlabel('Rotational speed [rad/s]')
+plot(rpm, fg)
+xlabel('Rotational speed [rpm]')
 ylabel('Generator frequency [Hz]')
 
 %% Question 2
@@ -65,11 +66,22 @@ xlabel('Rotational speed [rad/s]')
 ylabel('Power [W]')
 
 %% Question 3
+clc
+Vb = Vb_ll / sqrt(3); % phase voltage on VSC-B (V)
+
+Pa = Vg.*Ig;
+Pb = Pa;
+Qb = 0.2*Pb;
+phi = atan(Qb/Pb); % leading angle
+Sb_mag = sqrt(Pb.^2 + Qb.^2);
+Sb = Sb_mag*exp(1j*phi); % complex power on b side (VAR)
+Ib = conj(Sb / Vb);
+
 
 omega = 2*pi*f_grid; % angular velocity grid side
-Vb = Vb_ll / sqrt(3); % phase voltage (V)
 
-[Ppoc, Qpoc] = transformer(P_g, Vb, Cc, n, R1, Lm, L1, omega, Vpoc);
+
+[Ppoc, Qpoc] = transformer(Ib, Vb, Vpoc, Cc, Rc, Lc, omega, L2_prime, R2_prime, n, Lm, R1, L1 );
 
 % POC active power
 figure()

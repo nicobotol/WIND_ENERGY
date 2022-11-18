@@ -1,3 +1,6 @@
+line_width = 2;
+font_size = 30;
+
 %% Data of the problem
 rho = 1.225; % air density (kg/m^3)
 Rs = 0.064; % wtg internal resistnace (ohm)
@@ -21,7 +24,7 @@ Lc = l_cable*L;
 Rc = r_cable*L;
 n = 4/33; % transformer ratio
 Lm = 0.046; % transformer magnetizing inductance (H)
-L1 = 3.6E-3; % inductance of the primary (H)
+L1 = 0.6E-3; % inductance of the primary (H)
 L2_prime = L1; % inductance of the secondary referred to the primary
 R1 = 0.025; % resitance of the primary (Ohm)
 R2_prime = 0.025; % resitance of the secondary referred to the primary (Ohm)

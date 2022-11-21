@@ -8,19 +8,37 @@ Cc_prime = n^2*Cc;
 Rc_prime = n^2*Rc;
 Lc_prime = n^2*Lc;
 
-B = [1 1 0 0;
-  1j*omega*Lm 0 0 0;
-  1j*omega*Lm -(R2_prime+Rc_prime+1j*omega*(L2_prime+Lc_prime)) -1/(1j*omega*Cc_prime) 0;
-  0 -1 1 1];
+% % B = [1 1 0 0;
+% %   1j*omega*Lm 0 0 0;
+% %   1j*omega*Lm -(R2_prime+Rc_prime+1j*omega*(L2_prime+Lc_prime)) -1/(1j*omega*Cc_prime) 0;
+% %   0 -1 1 1];
+% % 
+% % p_max = size(Ib, 2);
+% % Ipoc = zeros(p_max, 1);
+% % for p=1:p_max
+% % res = B \ [Ib(p) (Vb-Ib(p)*(R1+1j*omega*L1)) 0 0 ]';
+% % Ipoc(p) = res(4);
+% % end
+% 
+% % B = [1 1 0 0;
+% %   1j*omega*Lm 0 0 0;
+% %   1j*omega*Lm -(R2_prime+Rc_prime+1j*omega*(L2_prime+Lc_prime)) 0 0;
+% %   0 -1 1 1];
+% % 
+% % p_max = size(Ib, 2);
+% % Ipoc = zeros(p_max, 1);
+% % for p=1:p_max
+% % res = B \ [Ib(p) (Vb-Ib(p)*(R1+1j*omega*L1)) Vpoc' 0 ]';
+% % Ipoc(p) = res(4);
+% % end
+% 
+% % Ipoc = Ib - (Vb - Ib.*(R1+1j*omega*L1)/(1j*omega*Lm)-1j*omega*Cc_prime*Vpoc_prime);
 
-p_max = size(Ib, 2);
-Ipoc = zeros(p_max, 1);
-for p=1:p_max
-res = B \ [Ib(p) (Vb-Ib(p)*(R1+1j*omega*L1)) 0 0 ]';
-Ipoc(p) = res(4);
-end
+Z2_prime = (R2_prime + Rc_prime) + 1j*omega*(L2_prime + Lc_prime);
+Ipoc = 1/Z2_prime*(Vb - Ib*(R1 + 1j*omega*L1) - Vpoc_prime) - ...
+  1j*omega*Cc_prime*Vpoc_prime;
 
-Spoc = 3*Vpoc_prime*conj(Ipoc);
+Spoc = -3*Vpoc_prime*conj(Ipoc);
 Ppoc = real(Spoc);
 Qpoc = imag(Spoc);
 

@@ -9,7 +9,7 @@ parameters
 
 %% Question 1
 omega_M_rpm = 0.3:0.2:omega_M_max; % (rpm)
-
+%omega_M_rpm = [ 0.3 1:1:omega_M_max+0.001 omega_M_max]; % (rpm)
 omega_M = [0:1:9 omega_M_max]; % rpm for the tables
 %omega_M = [0:1:10]*pi/30;
 
@@ -116,9 +116,9 @@ saveas(fig_complex_power, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
   '\WIND_ENERGY\assignment2\figures\fig_complex_power.png'],'png');
 
 %% Question 3
-clc
-Vb = Vb_ll / sqrt(3); % phase voltage on VSC-B (V)
-
+% clc
+% Vb = Vb_ll / sqrt(3); % phase voltage on VSC-B (V)
+% 
 omega = 2*pi*f_grid; % angular velocity grid side
 
 % [Ppoc, Qpoc] = transformer(Ib, Vb, Vpoc, Cc, Rc, Lc, omega, L2_prime, ...
@@ -261,28 +261,21 @@ legend('vb', 'vab', 'vcd', 'Location','northwest')
 xlabel('Rotational speed [rpm]')
 ylabel('Voltage Vb')  
 grid on
+%%
+% Power for the farm of 8 WT
+Ppoc8 = 8*Ppoc;
+Qpoc8 = 8*Qpoc;
+fig_POC_active8 = figure('Position', get(0, 'Screensize'));
+plot(rpm, Ppoc8,'LineWidth', line_width)
+% legend('Active [W]',, 'Location','northwest')
+xlabel('Rotational speed [rpm]')
+ylabel('Active power [W]')
+grid on
+title('Farm active power at the POC')
+set(gca, 'FontSize', font_size);
+saveas(fig_POC_active8, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
+  '\WIND_ENERGY\assignment2\figures\fig_POC_active8.png'],'png');
 
-
-% set(gca, 'FontSize', font_size);
-% saveas(fig_POC_power, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
-%   '\WIND_ENERGY\assignment2\figures\fig_POC_power.png'],'png');
-% 
-% % Power for the farm of 8 WT
-% Ppoc8 = 8*Ppoc;
-% Qpoc8 = 8*Qpoc;
-% fig_POC_active8 = figure('Position', get(0, 'Screensize'));
-% plot(rpm, Ppoc8,'LineWidth', line_width)
-% hold on
-% plot(rpm, Qpoc8,'LineWidth', line_width)
-% hold off
-% legend('Active [W]', 'Reactive [VAR]', 'Location','northwest')
-% xlabel('Rotational speed [rpm]')
-% ylabel('Power at POC')
-% grid on
-% set(gca, 'FontSize', font_size);
-% saveas(fig_POC_active8, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
-%   '\WIND_ENERGY\assignment2\figures\fig_POC_active8.png'],'png');
-% 
 %% Question 4
 % clc
 % clear Ipoc
@@ -317,19 +310,26 @@ grid on
 % % plot(rpm, phi)
 % 
 
-clc
+Ipoc_convergence = 0.32; % initial guess for the convergencce of Ipoc
 for i =1:size(P_g,2)
-  [delta(i)] = Q4(P_g(i), Z1, Z2_prime, Zm, Zc, Vpoc_prime, Z_cable);
+  [delta(i), Ipoc_convergence] = Q4(P_g(i), Z1, Z2_prime, Zm, Zc, Vpoc_prime, Z_cable, Ipoc_convergence);
 end
 
-figure()
-plot(rpm, delta)
+fig_Q4 = figure('Position', get(0, 'Screensize'));
+plot(rpm, delta,'LineWidth', line_width)
+xlabel('Rotational speed [rpm]')
+ylabel('Phase angle \phi [rad]')
+title('Power control law')
+grid on
+set(gca, 'FontSize', font_size);
+saveas(fig_Q4, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
+  '\WIND_ENERGY\assignment2\figures\fig_Q4.png'],'png');
 
 %% Question 5
 eta = Ppoc ./ Pmech;
 %eta_tot = Ppoc'./ Pavailable;
 
-fig_POC_power = figure('Position', get(0, 'Screensize'));
+fig_eta = figure('Position', get(0, 'Screensize'));
 plot(rpm, eta,'LineWidth', line_width)
 % hold on
 % plot(rpm, eta_tot,'LineWidth', line_width)
@@ -339,9 +339,10 @@ xlabel('Rotational speed [rpm]')
 ylabel('Efficiency \eta')
 xlim([2 max(rpm)])
 grid on
+title('Efficiency of the wind turbine')
 set(gca, 'FontSize', font_size);
-saveas(fig_POC_power, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
-  '\WIND_ENERGY\assignment2\figures\fig_POC_power.png'],'png');
+saveas(fig_eta, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
+  '\WIND_ENERGY\assignment2\figures\fig_eta.png'],'png');
 
 %% Collect data in a table and plot it
 % save_data(:, 1) = omega_M; % mechanical rotational speed [rad/s]

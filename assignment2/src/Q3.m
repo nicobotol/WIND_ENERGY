@@ -22,6 +22,7 @@ for i = 1:1000
   Vpoc_star_mag = abs(Vpoc_star);
 
   if( abs(Vpoc_star_mag - Vpoc_prime) <  threshold)
+    
     disp(strcat('convergence at', num2str(i)))
     Vb_solution = Vb; 
     Vab_solution = Vab;

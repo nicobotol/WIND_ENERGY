@@ -17,7 +17,8 @@ V0_rated = 11.44; % rated wind speed
 P_rated = 10.64e6; % rated power (W)
 omega_max = 1.01; % rated rotational speed (rad/s)
 cp_opt = 0.465; % optimal cp
-lambda_opt = 7.857; % optimal lambda
+%lambda_opt = 7.857; % optimal lambda
+lambda_opt = 7.5;
 Theta_p_opt = 0*pi/180; % optimla pitch angle [rad]
 
 lambda_range = [5 10]; % range in within look for optimal lambda
@@ -48,7 +49,7 @@ filenames = [ "airfoil_data\cylinder", "airfoil_data\FFA-W3-600", ...
 % file with blade parameters
 blade_filename = "airfoil_data\bladedat.txt";
 % file with structural parameters
-structural_filename = "bladestruc.txt";
+structural_filename = "airfoil_data\bladestruc.txt";
 % t/c ratio (they are in the same order provided as the file uploaded)
 thick_prof = [100 60 48 36 30.1 24.1];
 

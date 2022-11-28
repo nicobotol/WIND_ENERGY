@@ -52,7 +52,7 @@ end
 % split the power vector in two parts: the first before the max power and
 % the second after
 P_part1 = P(1:max_pos);
-P_part2 = P(max_pos : end);
+P_part2 = P(max_pos:end);
 % split the corresponding theta
 Theta_p_part1 = pitch_vector(1 : max_pos);
 Theta_p_part2 = pitch_vector(max_pos : end);

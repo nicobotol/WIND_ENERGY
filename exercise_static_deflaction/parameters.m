@@ -6,7 +6,7 @@ line_width = 2; % line width for plots
 i_max = 300;  % maximum number of accepted iterations
 fake_zero = 1e-8; % thershold for exiting the loop
 
-V0 = 11; % windspeed to investigate
+V0 = 6; % windspeed to investigate
 R = 89.17; % rotor radius (m)
 A = R^2 * pi; % rotor area (m^2)
 B = 3; % number of blades (#)
@@ -17,7 +17,8 @@ V0_rated = 11.44; % rated wind speed
 P_rated = 10.64e6; % rated power (W)
 omega_max = 1.01; % rated rotational speed (rad/s)
 cp_opt = 0.465; % optimal cp
-lambda_opt = 7.857; % optimal lambda
+%lambda_opt = 7.857; % optimal lambda
+lambda_opt = 7.5;
 Theta_p_opt = 0*pi/180; % optimla pitch angle [rad]
 
 lambda_range = [5 10]; % range in within look for optimal lambda

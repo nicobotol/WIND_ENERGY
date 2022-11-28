@@ -25,10 +25,11 @@ Z2_prime = Z2*n^2; % impedence of the secondary repoorted to the primary [ohm]
 Zload_prime = Zload*n^2; % impedence of the load seen from the primary [ohm]
 
 Ztot = Z1 + (1/Zm + 1/(Z2_prime + Zload_prime))^(-1);
-S1_phase = V1/sqrt(3)*conj(V1/sqrt(3))/Ztot; % complex power of the primary (per phase) [VA]
+I1 = V1/sqrt(3)/Ztot; % per-phase current [A]
+S1_phase = V1/sqrt(3)*conj(I1); % complex power of the primary (per phase) [VA]
 S1_tot = 3*S1_phase; % total complex power of the primary [VA]
 P1_tot = real(S1_tot); % total active power of the primary [W]
-Q1_tot = conj(S_tot); % total reactive power of the primary [VAR]
+Q1_tot = conj(S1_tot); % total reactive power of the primary [VAR]
 
 %% Power factor of the load
 phi_load = atan(X2/R2); % phase angle of the load
@@ -40,8 +41,9 @@ Zpar = (1/Zm + 1/(Z2_prime + Zload_prime))^(-1);
 
 Vab = V1/sqrt(3)*Zpar/(Zpar + Z1);
 I2 = Vab / (Z2_prime + Zload_prime);
-S2 = I2*conj(I2)*Zload_prime;
+S2 = I2*Zload_prime*conj(I2);
 P2 = real(S2);
 P2_tot = 3*P2;
 eta = P2_tot/P1_tot; % efficiency
+disp(strcat('The efficiency of the transformer is:', num2str(eta)))
 

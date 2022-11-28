@@ -5,6 +5,12 @@ function [py, pz, Theta_p] = internal_beam_loads(V0)
 % load data from parameters
 parameters
 
+% load pitchig angle
+load('Pitching.mat'); % first row: windspeed between 4-25 (m/s)
+                      % second row: angle for stall
+                      % third row: angle for feathering
+
+
 % load the blade data from "bladedat.txt"
 [r_vector, c_vector, beta_vector, thick_vector] = load_blade_data(blade_filename);
 
@@ -28,7 +34,7 @@ else
   omega = omega_max;
   
   % pitch
-  Theta_p = interp1(Theta_p_limit(1,:), Theta_p_limit(2,:), V0);
+  Theta_p = interp1(Theta_p_limit(1,:), Theta_p_limit(3,:), V0);
 
 end
 

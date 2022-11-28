@@ -87,3 +87,25 @@ title(strcat('2^{nd} flap - \omega = ', num2str(omega3), ' [rad/s]', ' f = ', nu
 w1 = 3.516*(1/1)^0.5/(18-1)^2;
 w2 = 22.03*(1/1)^0.5/(18-1)^2;
 w3 = 61.7*(1/1)^0.5/(18-1)^2;
+
+%% Trust force
+if V0 < V0_rated - 1e-3 % velocities below the rated one
+  lambda = lambda_opt;
+  omega = V0 * lambda / R;
+  Theta_p = Theta_p_opt; % pitch    
+else
+  lambda = omega_max * R / V0;
+  omega = omega_max;
+  Theta_p = interp1(Theta_p_limit(1,:), Theta_p_limit(3,:), V0); % pitch
+end
+
+[cp_partial, cT_partial, pt, pn] = cP_cT_partial(r_item_no_tip, r_vector, ...
+beta_vector, thick_vector, c_vector, B, a_guess, a_prime_guess, R, lambda, ...
+Theta_p, aoa_mat, cl_mat, cd_mat, thick_prof, fake_zero, rho, V0, ...
+omega, i_max);
+     
+cP = lambda*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
+cT = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial);
+      
+P = cP*0.5*A*rho*V0^3;
+T = cT*0.5*A*rho*V0^2/1000

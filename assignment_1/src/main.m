@@ -275,6 +275,10 @@ for v=1:V0_cut_in_out_item % loop over differnet velocities
   end
 
 end
+
+%%
+save('Pitching.mat', 'Theta_p_limit');
+
 %%
 pitch_vs_V0 = figure('Position', get(0, 'Screensize'));
 plot(Theta_p_limit(1, V0_rated_pos:end), rad2deg(Theta_p_limit(2, V0_rated_pos:end)), 'LineWidth', line_width)

@@ -9,8 +9,8 @@ parameters
 
 %% Question 1
 omega_M_rpm = 0.3:0.2:omega_M_max; % (rpm)
-%omega_M_rpm = [ 0.3 1:1:omega_M_max+0.001 omega_M_max]; % (rpm)
-omega_M = [0:1:9 omega_M_max]; % rpm for the tables
+omega_M_rpm = [ 0.3 1:1:omega_M_max+0.001 omega_M_max]; % (rpm)
+%omega_M = [0:1:9 omega_M_max]; % rpm for the tables
 %omega_M = [0:1:10]*pi/30;
 
 omega_M = omega_M_rpm*pi/30; % (rad/s)

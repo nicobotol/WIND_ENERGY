@@ -46,9 +46,9 @@ filenames = [ "airfoil_data\cylinder", "airfoil_data\FFA-W3-600", ...
   "airfoil_data\FFA-W3-301", "airfoil_data\FFA-W3-241"];
 
 % file with blade parameters
-blade_filename = "airfoil_data\bladedat_test_double.txt";
+blade_filename = "airfoil_data\bladedat.txt";
 % file with structural parameters
-structural_filename = "input_test_double.txt";
+structural_filename = "bladestruc.txt";
 % t/c ratio (they are in the same order provided as the file uploaded)
 thick_prof = [100 60 48 36 30.1 24.1];
 

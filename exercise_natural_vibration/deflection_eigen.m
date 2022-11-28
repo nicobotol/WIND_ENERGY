@@ -63,10 +63,10 @@ for i = 1:r_item-1
 end
 
 % asemble the displacement
-u = zeros(2*r_item_no_tip, 1);
+u = zeros(2*r_item, 1);
 for i=2:r_item
-  u(2*(i - 1) - 1) = u_y(i);
-  u(2*(i - 1)) = u_z(i);
+  u(2*i  - 1) = u_y(i);
+  u(2*i) = u_z(i);
 end
 
 

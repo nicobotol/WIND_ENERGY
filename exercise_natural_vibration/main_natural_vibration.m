@@ -55,24 +55,30 @@ MS2_z = V(2:2:end, 2)/max(abs(V(:, 2)));
 MS3_y = V(1:2:end, 3)/max(abs(V(:, 3)));
 MS3_z = V(2:2:end, 3)/max(abs(V(:, 3)));
 
-figure()
+%% 
+fig_eigenmodes = figure('Position', get(0, 'Screensize'));
 subplot(3,1,1)
 plot(r_vector, MS1_y, 'LineWidth',line_width )
 hold on
 plot(r_vector, MS1_z,'LineWidth',line_width )
 hold off
+ylabel('u/u_{MAX} [-]')
 grid on
 legend('u_y', 'u_z', 'Location', 'southwest')
-title(strcat('1^{st} flap - \omega = ', num2str(omega1), ' [rad/s]', ' f = ', num2str(f1), ' [Hz]') )
+title(strcat('1^{st} flap - \omega = ', num2str(omega1), ' [rad/s]', ...
+  ' f = ', num2str(f1), ' [Hz]') )
+set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
 
 subplot(3,1,2)
 plot(r_vector, MS2_y, 'LineWidth',line_width )
 hold on
 plot(r_vector, MS2_z, 'LineWidth',line_width )
 hold off
+ylabel('u/u_{MAX} [-]')
 grid on
-title(strcat('1^{st} edge - \omega = ', num2str(omega2), ' [rad/s]', ' f = ', num2str(f2), ' [Hz]') )
-
+title(strcat('1^{st} edge - \omega = ', num2str(omega2), ' [rad/s]', ...
+  ' f = ', num2str(f2), ' [Hz]') )
+set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
 
 subplot(3,1,3)
 plot(r_vector, MS3_y,'LineWidth',line_width )
@@ -80,9 +86,14 @@ hold on
 plot(r_vector, MS3_z, 'LineWidth',line_width )
 hold off
 xlabel('r [m]')
+ylabel('u/u_{MAX} [-]')
 grid on
-title(strcat('2^{nd} flap - \omega = ', num2str(omega3), ' [rad/s]', ' f = ', num2str(f3), ' [Hz]') )
-
+title(strcat('2^{nd} flap - \omega = ', num2str(omega3), ' [rad/s]', ...
+  ' f = ', num2str(f3), ' [Hz]') )
+set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
+saveas(fig_eigenmodes, ['C:\Users\Niccolò\Documents\UNIVERSITA\' ...
+  '5° ANNO\WIND_ENERGY\exercise_natural_vibration\' ...
+  'fig_eigenmodes.png'],'png');
 
 w1 = 3.516*(1/1)^0.5/(18-1)^2;
 w2 = 22.03*(1/1)^0.5/(18-1)^2;
@@ -108,4 +119,4 @@ cP = lambda*B/(R*A)*trapezoidal_integral(r_vector(1:r_item_no_tip), cp_partial);
 cT = B/A*trapezoidal_integral(r_vector(1:r_item_no_tip), cT_partial);
       
 P = cP*0.5*A*rho*V0^3;
-T = cT*0.5*A*rho*V0^2/1000
+T = cT*0.5*A*rho*V0^2/1000;

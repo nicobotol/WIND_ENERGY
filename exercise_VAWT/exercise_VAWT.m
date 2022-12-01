@@ -20,7 +20,7 @@ blades_size = size(blades, 2); % number of blade configuration to investigate
 delta_t = (1*pi)/(180*omega); % first guess fot time step increment
 time_final = 20; % time when to stop the analysis
 time_plot_initial = 0.0006; % time when start to plot values
-time_plot_final = 7; % time when stop to plot the values
+time_plot_final = 9; % time when stop to plot the values
 t_start = 4.5; % (s) time when start integration
 t_stop = 20;  % (s) time when stop integration
 if (time_plot_final > time_final)
@@ -118,7 +118,7 @@ for i = 1:blades_size
   cT_mean = sum_cT / (t_stop - t_start);
   disp( strcat('For B=', num2str(blades(i)), ': cp=', num2str(cP_mean), '; cT=', num2str(cT_mean)))
 end
-
+cd
 for i = 1:blades_size
   [sum_cp] =  trapezoidal_integral(t_stop - 2*pi/omega, t_stop, cp_vector(:, i), t);
   [sum_cT] =  trapezoidal_integral(t_stop - 2*pi/omega, t_stop, cT_vector(:, i), t);

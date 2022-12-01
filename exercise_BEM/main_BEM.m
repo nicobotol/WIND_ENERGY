@@ -10,7 +10,7 @@ V0 = 8; % wind speed (m/s)
 omega = 2.61; % rotational speed (rad/s)
 Theta_p = -3*pi/180; % pitch angle (rad)
 beta = 2*pi/180; % twist angle (rad)
-c = 0.5; % chord lenght (m)
+c = 1.5; % chord lenght (m)
 cl = 0.5; % load coefficient
 cd = 0.01; % drag coefficient
 r = 24.5; % actual radius (m)
@@ -35,6 +35,6 @@ pt = 0.5 * rho * V_rel^2 * c * ct;
 
 display(strcat('a = ', num2str(a)))
 display(strcat('a_prime = ', num2str(a_prime)))
-display(strcat('pn = ', num2str(pn)))
-display(strcat('pt = ', num2str(pt)))
+display(strcat('pn = ', num2str(pn), '[N/m]'))
+display(strcat('pt = ', num2str(pt), '[N/m]'))
 display(strcat('F = ', num2str(F)))

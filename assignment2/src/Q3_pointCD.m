@@ -32,9 +32,10 @@ for i = 1:10000
     Ipoc = I2 - Ic;
     Spoc = 3*Vpoc_star*conj(Ipoc);
     %Ppoc = imag(Spoc);
-    Ppoc = real(Spoc);
-    Qpoc = imag(Spoc);
-    %Qpoc = imag(3*(Vcd)*conj(I2));
+    %Ppoc = real(Spoc);
+    %Qpoc = imag(Spoc);
+    Ppoc = real(3*(Vcd)*conj(I2));
+    Qpoc = imag(3*(Vcd)*conj(I2));
     break
   end
 

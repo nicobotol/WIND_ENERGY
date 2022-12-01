@@ -10,7 +10,7 @@ parameters
 %% Question 1
 omega_M_rpm = 0.3:0.2:omega_M_max; % (rpm)
 omega_M_rpm = [ 0.3 1:1:omega_M_max+0.001 omega_M_max]; % (rpm)
-%omega_M = [0:1:9 omega_M_max]; % rpm for the tables
+omega_M = [0:1:9 omega_M_max]; % rpm for the tables
 %omega_M = [0:1:10]*pi/30;
 
 omega_M = omega_M_rpm*pi/30; % (rad/s)
@@ -144,9 +144,22 @@ Zm =  1j*omega*Lm;
 Zc = 1/(1j*omega*Cc_prime);
 
 for i =1:size(P_g,2)
-  [Vb_sol(i), Vab_sol(i), Vcd_sol(i), Vpoc_sol(i), Ppoc(i), Qpoc(i)] = Q3(P_g(i), Z1, Z2_prime, Zm, Zc, Vpoc_prime, Z_cable);
+  [Vb_sol(i), Vab_sol(i), Vcd_sol(i), Vpoc_sol(i), Ppoc(i), Qpoc(i)] ...
+  = Q3(P_g(i), Z1, Z2_prime, Zm, Zc, Vpoc_prime, Z_cable);
 end
 
+for i =1:size(P_g,2)
+  [Vb_sol(i), Vab_sol(i), Vcd_sol(i), Vpoc_sol(i), Ppoc_CD(i), ...
+    Qpoc_CD(i)] = Q3_pointCD(P_g(i), Z1, Z2_prime, Zm, Zc, Vpoc_prime, ...
+    Z_cable);
+end
+%%
+Vpoc_prime = Vpoc_prime_ll/sqrt(3);
+for i =1:size(P_g,2)
+  [ Ppoc_new(i), ...
+    Qpoc_new(i)] = Q3_new(P_g(i), Z1, Z2_prime, Zm, Zc, Vpoc_prime, ...
+    Z_cable);
+end
 
 % Pa = P_g(1) / 3; % phase power on the generator side [W]
 % Pb = Pa;
@@ -178,8 +191,6 @@ end
 %   end
 % 
 % end
-
-
 % Spoc = 3*Vpoc_prime.*conj(Ipoc); % the sign (-) comes from the fact
 % % that current and voltage are assumed positive in opposite directions
 % % Spoc = -3*Vpoc_prime_ll*conj(Ipoc);
@@ -231,6 +242,36 @@ title('Power at POC')
 set(gca, 'FontSize', font_size);
 saveas(fig_POC_active, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
   '\WIND_ENERGY\assignment2\figures\fig_POC_active.png'],'png');
+%%
+fig_POC_new = figure('Position', get(0, 'Screensize'));
+plot(rpm, Ppoc_new,'LineWidth', line_width)
+hold on
+plot(rpm, Qpoc_new,'LineWidth', line_width)
+hold off
+legend('Active [W]', 'Reactive [VAR]', 'Location','northwest')
+xlabel('Rotational speed [rpm]')
+ylabel('Power at POC')
+grid on
+title('Power at POC')
+set(gca, 'FontSize', font_size);
+saveas(fig_POC_new, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
+  '\WIND_ENERGY\assignment2\figures\fig_POC_new.png'],'png');
+
+%%
+% CD active power
+fig_CD_power = figure('Position', get(0, 'Screensize'));
+plot(rpm, Ppoc_CD,'LineWidth', line_width)
+hold on
+plot(rpm, Qpoc_CD,'LineWidth', line_width)
+hold off
+legend('Active [W]', 'Reactive [VAR]', 'Location','northwest')
+xlabel('Rotational speed [rpm]')
+ylabel('Power')
+grid on
+title('Power at the transformer secondary')
+set(gca, 'FontSize', font_size);
+saveas(fig_CD_power, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
+  '\WIND_ENERGY\assignment2\figures\fig_CD_power.png'],'png');
 
 % comparison of power
 fig_POC_power = figure('Position', get(0, 'Screensize'));
@@ -312,7 +353,8 @@ saveas(fig_POC_active8, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
 
 Ipoc_convergence = 0.32; % initial guess for the convergencce of Ipoc
 for i =1:size(P_g,2)
-  [delta(i), Ipoc_convergence] = Q4(P_g(i), Z1, Z2_prime, Zm, Zc, Vpoc_prime, Z_cable, Ipoc_convergence);
+  [delta(i), Ipoc_convergence, Ppoc_Q4(i)] = Q4(P_g(i), Z1, Z2_prime, Zm, Zc, ...
+    Vpoc_prime, Z_cable, Ipoc_convergence);
 end
 
 fig_Q4 = figure('Position', get(0, 'Screensize'));
@@ -327,44 +369,35 @@ saveas(fig_Q4, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
 
 %% Question 5
 eta = Ppoc ./ Pmech;
+eta_Q4 = 3*Ppoc_Q4 ./Pmech;
 %eta_tot = Ppoc'./ Pavailable;
 
 fig_eta = figure('Position', get(0, 'Screensize'));
 plot(rpm, eta,'LineWidth', line_width)
 % hold on
-% plot(rpm, eta_tot,'LineWidth', line_width)
-% % hold off
-% legend('\eta WT', '\eta total', 'Location', 'east')
+% plot(rpm, eta_Q4,'LineWidth', line_width)
+% hold off
+% legend('Q3 strategy', 'Q4 strategy', 'Location', 'east')
 xlabel('Rotational speed [rpm]')
-ylabel('Efficiency \eta')
+ylabel('Efficiency - \eta [-]')
 xlim([2 max(rpm)])
 grid on
-title('Efficiency of the wind turbine')
+title('Efficiency for 1 WT')
 set(gca, 'FontSize', font_size);
 saveas(fig_eta, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
   '\WIND_ENERGY\assignment2\figures\fig_eta.png'],'png');
 
-%% Collect data in a table and plot it
-% save_data(:, 1) = omega_M; % mechanical rotational speed [rad/s]
-% save_data(:, 2) = omega_E; % electrical rotational speed [rad/s]
-% save_data(:, 3) = Vg; % generator voltage [V]
-% save_data(:, 4) = Ig; % generator current [A]
-% save_data(:, 5) = fg; % genrator frequency [Hz]
-% save_data(:, 6) = Pmech; % mechanical power [W]
-% save_data(:, 7) = Pavailable; % available windspeed [m/s]
-% save_data(:, 8) = P_loss; % active power loss in the generator [W]
-% save_data(:, 9) = Q_loss; % reactive power loss in the generator [VAR]
-% save_data(:, 10) = S_loss; % complex power loss in the generator [VA]
-% save_data(:, 11) = S_g; % complex power output of the generator [VA]
-% save_data(:, 12) = Ppoc; % Active power at the POC, for 1 WT [W]
-% save_data(:, 13) = Qpoc; % Reactive power at the POC, for 1 WT [W]
-% save_data(:, 14) = Ppoc8; % Active power at the POC, for 8 WT [W]
-% save_data(:, 15) = Qpoc8; % Reactive power at the POC, for 8 WT [W]
-% save_data(:, 16) = eta; % Efficiency of the WT (from mech power to POC)
-% save_data(:, 17) = eta_tot; % Efficiency of the plant (from wind to POC)
-% 
-% columnLabels = {'\omega_M [rad/s]', '\omega_E [rad/s]', 'Vg [V]', 'Ig [A]'};
-% 
-% matrix2latex(save_data(:, 4), 'out.tex',...
-%   'columnLabels', columnLabels, 'alignment', 'c', 'format', '%-6.2f', ...
-%   'size', 'tiny');
+fig_eta_comparison = figure('Position', get(0, 'Screensize'));
+plot(rpm, eta,'LineWidth', line_width)
+hold on
+plot(rpm, eta_Q4,'LineWidth', line_width)
+% hold off
+legend('Q3 strategy', 'Q4 strategy', 'Location', 'east')
+xlabel('Rotational speed [rpm]')
+ylabel('Efficiency of 1 WT - \eta [-]')
+xlim([2 max(rpm)])
+grid on
+title('Efficiency for the differente control startegies')
+set(gca, 'FontSize', font_size);
+saveas(fig_eta_comparison, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
+  '\WIND_ENERGY\assignment2\figures\fig_eta_comparison.png'],'png');

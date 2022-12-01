@@ -1,4 +1,6 @@
-function [a, a_prime, ct, cn, phi, F] = induction_factor_convergence(a_guess, a_prime_guess, R, r, lambda, beta, Theta_p, cd, cl, c, B, sigma, fake_zero, i_max)
+function [a, a_prime, ct, cn, phi, F] = induction_factor_convergence ...
+(a_guess, a_prime_guess, R, r, lambda, beta, Theta_p, cd, cl, c, B, ...
+sigma, fake_zero, i_max)
 % This function performs the calculations to make the induction functions
 % converge
 % a -> (INPUT) initial guess of axial induction factor

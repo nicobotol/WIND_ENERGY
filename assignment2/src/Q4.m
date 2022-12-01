@@ -1,4 +1,5 @@
-function [delta, Ipoc_convergence] = Q4(P_g, Z1, Z2_prime, Zm, Zc, Vpoc_prime,  Zcable, Ipoc_guess)
+function [delta, Ipoc_convergence, Ppoc] = Q4(P_g, Z1, Z2_prime, Zm, Zc, ...
+  Vpoc_prime,  Zcable, Ipoc_guess)
 %UNTITLED Summary of this function goes here
 
 Pa = P_g / 3; % phase power on the generator side [W]
@@ -21,6 +22,7 @@ for i = 1:10000000
     disp(strcat('convergence at', num2str(i)))
     Qg = imag(Vb*conj(Ib));
     delta = atan(Qg/Pg);
+    Ppoc = Ipoc_convergence*Vpoc_prime;
     break
   end
 

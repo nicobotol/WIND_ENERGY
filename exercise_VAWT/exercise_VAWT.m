@@ -1,12 +1,22 @@
 clear
 close all
 clc
-line_size = 1.75;
+
 %% Load airfoil data
 load_data = importdata('airfoil.txt');
 aoa = load_data.data(:, 1); % angle of attack
 cl_data = load_data.data(:, 2); % cl vector
 cd_data = load_data.data(:, 3); % cd vector
+
+font_size = 15; 
+line_size = 1.75;
+
+%% HELPER LINES FOR PRINTING
+% fig_Mg = figure('Position', get(0, 'Screensize'));
+% set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
+% saveas(fig_Mg, ['C:\Users\Niccolò\Documents\UNIVERSITA\5° ANNO' ...
+%   '\WIND_ENERGY\exercise_control\images\fig_Mg.png'],'png');
+
 
 %% PARAMETERS
 R = 3; % (m)
@@ -35,7 +45,7 @@ s_initial = ceil(time_plot_initial/delta_t);
 s_final = round(time_plot_final/delta_t);
 s_plot = s_initial:s_final:1;
 
-%%
+%% Do all the computations
 a = zeros(ntime, 1);
 theta1 = zeros(ntime, 1);
 t = zeros(ntime, 1);
@@ -127,12 +137,14 @@ for i = 1:blades_size
   disp( strcat('For B=', num2str(blades(i)), ': cp=', num2str(cP_mean), '; cT=', num2str(cT_mean)))
 end
 %% plot the results
-%build the legend
+
+% build the legend
 legend_name = strings(1, blades_size);
 for b=1:blades_size
   legend_name(b) = strcat("B = ", num2str(blades(b)));
 end
 
+%%
 % plot px for every blade number
 figure()
 for b=1:blades_size
@@ -140,12 +152,14 @@ plot(t(s_initial:s_final), px_vector(s_initial:s_final, b), 'LineWidth', line_si
 hold on
 end
 hold off
-legend(legend_name)
+legend(legend_name, 'FontSize', font_size)
 xlabel('Time (s)')
 ylabel('px (N)')
 title('px as function of time')
+set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
+grid on
 
-
+%%
 % plot py for every blade number
 figure()
 for b=1:blades_size
@@ -153,35 +167,14 @@ plot(t(s_initial:s_final), py_vector(s_initial:s_final, b), 'LineWidth', line_si
 hold on
 end
 hold off
-legend(legend_name)
+legend(legend_name, 'FontSize', font_size)
 xlabel('Time (s)')
 ylabel('py (N)')
 title('py as function of time')
+grid on
+set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
 
-% plot cp for every blade
-figure()
-for b=1:blades_size
-plot(t(s_initial:s_final), cp_vector(s_initial:s_final, b), 'LineWidth', line_size);
-hold on
-end
-hold off
-legend(legend_name)
-xlabel('Time (s)')
-ylabel('cP')
-title('cP as function of time')
-
-% plot cT for every blade
-figure()
-for b=1:blades_size
-plot(t(s_initial:s_final), cT_vector(s_initial:s_final, b), 'LineWidth', line_size);
-hold on
-end
-hold off
-legend(legend_name)
-xlabel('Time (s)')
-ylabel('cT')
-title('cT as function of time')
-
+%%
 % plot px and py of one blade on the same graph
 for b=1:blades_size
   figure()
@@ -191,10 +184,43 @@ for b=1:blades_size
   hold off
   xlabel('Time (s)')
   ylabel('load (N/m)')
-  legend('px', 'py')
+  legend('px', 'py', 'FontSize', font_size)
   title(strcat('total load for B=', num2str(blades(b))))
+  grid on
+  set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
 end
 
+%%
+% plot cp for every blade
+figure()
+for b=1:blades_size
+plot(t(s_initial:s_final), cp_vector(s_initial:s_final, b), 'LineWidth', line_size);
+hold on
+end
+hold off
+legend(legend_name, 'FontSize', font_size)
+xlabel('Time (s)')
+ylabel('cP (-)')
+title('cP as function of time')
+grid on
+set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
+
+%%
+% plot cT for every blade
+figure()
+for b=1:blades_size
+plot(t(s_initial:s_final), cT_vector(s_initial:s_final, b), 'LineWidth', line_size);
+hold on
+end
+hold off
+legend(legend_name, 'FontSize', font_size)
+xlabel('Time (s)')
+ylabel('cT (-)')
+title('cT as function of time')
+grid on
+set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
+
+%%
 % plot cp and cT of one blade on the same graph
 for b=1:blades_size
   figure()
@@ -203,11 +229,14 @@ for b=1:blades_size
   plot(t(s_initial:s_final), cT_vector(s_initial:s_final, b), 'LineWidth', line_size);
   hold off
   xlabel('Time (s)')
-  ylabel('coeff.')
-  legend('cp', 'cT')
-  title(strcat('total load for B=', num2str(blades(b))))
+  ylabel('coeff. (-)')
+  legend('c_P', 'c_T', 'FontSize', font_size)
+  title(strcat('c_P and c_T for B=', num2str(blades(b))))
+  grid on
+  set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
 end
 
+%%
 % plot px on all the blades for one blade configuration
 for b=1:blades_size
   figure()
@@ -218,10 +247,13 @@ for b=1:blades_size
   hold off
   xlabel('Time (s)')
   ylabel('load (N/m)')
-  legend(legend_name)
+  legend(legend_name, 'FontSize', font_size)
   title(strcat('px load for B=', num2str(blades(b))))
+  grid on
+  set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
 end
 
+%%
 % plot py on all the blades for one blade configuration
 for b=1:blades_size
   figure()
@@ -232,10 +264,13 @@ for b=1:blades_size
   hold off
   xlabel('Time (s)')
   ylabel('load (N/m)')
-  legend(legend_name)
+  legend(legend_name, 'FontSize', font_size)
   title(strcat('py load for B=', num2str(blades(b))))
+  grid on
+  set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
 end
 
+%%
 % plot pt on all the blades for one blade configuration
 for b=1:blades_size
   figure()
@@ -246,10 +281,13 @@ for b=1:blades_size
   hold off
   xlabel('Time (s)')
   ylabel('load (N/m)')
-  legend(legend_name)
+  legend(legend_name, 'FontSize', font_size)
   title(strcat('pt load for B=', num2str(blades(b))))
+  grid on
+  set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
 end
 
+%%
 % plot pt on all the blades for one blade configuration
 for b=1:blades_size
   figure()
@@ -260,6 +298,24 @@ for b=1:blades_size
   hold off
   xlabel('Time (s)')
   ylabel('load (N/m)')
-  legend(legend_name)
+  legend(legend_name, 'FontSize', font_size)
   title(strcat('pt load for B=', num2str(blades(b))))
+  grid on
+  set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
+end
+
+%%
+% plot pt on 1 blade for one blade configuration
+% plot pt on all the blades for one blade configuration
+for b=1:blades_size
+  figure()
+  plot(t(s_initial:s_final), struct_loads{b}.p((s_initial:s_final), 3), 'LineWidth', line_size);
+  hold on
+  hold off
+  xlabel('Time (s)')
+  ylabel('load (N/m)')
+  legend(legend_name, 'FontSize', font_size)
+  title(strcat('pt load on one blade, for B=', num2str(blades(b))))
+  grid on
+  set(gca, 'FontAngle', 'oblique', 'FontSize', font_size)
 end

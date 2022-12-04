@@ -41,10 +41,13 @@ omega3 = sqrt(1/D(3,3));
 omega4 = sqrt(1/D(4,4));
 omega5 = sqrt(1/D(5,5));
 omega6 = sqrt(1/D(6,6));
-f1 = omega1/(2*pi)
-f2 = omega2/(2*pi)
-f3 = omega3/(2*pi)
+f1 = omega1/(2*pi);
+f2 = omega2/(2*pi);
+f3 = omega3/(2*pi);
 
+fprintf("Mode 1: %f [rad/s] - %f [Hz] \n", omega1, f1); 
+fprintf("Mode 2: %f [rad/s] - %f [Hz] \n", omega2, f2); 
+fprintf("Mode 3: %f [rad/s] - %f [Hz] \n \n", omega3, f3); 
 % find the eigenvectors
 MS1_y = V(1:2:end, 1)/max(abs(V(:, 1)));
 MS1_z = V(2:2:end, 1)/max(abs(V(:, 1)));

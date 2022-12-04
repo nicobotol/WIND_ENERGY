@@ -47,7 +47,7 @@ for v=1:velocity_item
     [cp_partial, cT_partial,~,~] = cP_cT_partial(r_item_no_tip, ...
       r_vector, beta_vector, thick_vector, c_vector, B, a_guess, ...
       a_prime_guess, R, lambda, Theta_p, aoa_mat, cl_mat, cd_mat, ...
-      thick_prof, fake_zero, rho,V0,omega, i_max);
+      thick_prof, fake_zero, rho,0,0, i_max);
   
     P(p) = 0.5*omega*B*rho*V0^2*trapezoidal_integral( ...
       r_vector(1:r_item_no_tip), cp_partial);
@@ -86,8 +86,6 @@ for v=1:velocity_item
 end
 
 %% PLOT THE RESULTS
-feathering_deg(1) = 0; % cheat a little bit to have better graphs
-stall_deg(1) = 0;
 
 fig_pitch = figure('Position', get(0, 'Screensize'));
 plot(velocity_pitch', feathering_deg, 'LineWidth', line_size)

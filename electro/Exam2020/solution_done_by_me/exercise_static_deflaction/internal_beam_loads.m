@@ -48,6 +48,6 @@ py(end + 1) = 0;  % add value correspnding to the tip
 
 Theta_p = 0;
 py = zeros(r_item, 1);
-pz = 4.8e3*ones(r_item, 1);
+pz = 64.2*r_vector;
 
 end

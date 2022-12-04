@@ -64,7 +64,10 @@ hold off
 legend('u_y', 'u_z', 'Location','northwest')
 xlabel('Spanwise position [m]')
 ylabel('Deflection [m]')
+yline(5, '--r', 'Label', 'Limit', 'LabelHorizontalAlignment','center', ...
+  'LineWidth', line_width,'FontSize', font_size)
 grid on
+ylim([0 6])
 title('Static deflaction')
 set(gca, 'FontSize', font_size);
 saveas(fig_deflection, ['C:\Users\Niccolò\Documents\UNIVERSITA\5°' ...

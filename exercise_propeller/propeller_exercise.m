@@ -20,6 +20,7 @@ rho = 1.225; % air density
 B = 2; % number of blades
 cd_constant = 0.008;
 R = max(r_vector); % propeller radius
+drag_coeff = 2.44; % drag coefficient
 
 T = zeros(V0_size,1);
 P = zeros(V0_size,1);
@@ -75,7 +76,7 @@ grid on
 %
 
 %% Compute the velocity of swamp boat
-drag = 2.44*V0_vector.^2; % drag for different velocities
+drag = drag_coeff*V0_vector.^2; % drag for different velocities
 
 % velocity of the swamp boat is reached when the drag is eqaul to the
 % thrust

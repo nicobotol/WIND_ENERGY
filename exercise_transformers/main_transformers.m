@@ -11,6 +11,9 @@
 % equivalent circuit of the transformer answer following
 
 % load parameters from file
+clear 
+close all
+clc
 parameters
 
 %% Voltage at the secondary
@@ -29,11 +32,21 @@ I1 = V1/sqrt(3)/Ztot; % per-phase current [A]
 S1_phase = V1/sqrt(3)*conj(I1); % complex power of the primary (per phase) [VA]
 S1_tot = 3*S1_phase; % total complex power of the primary [VA]
 P1_tot = real(S1_tot); % total active power of the primary [W]
-Q1_tot = conj(S1_tot); % total reactive power of the primary [VAR]
+Q1_tot = imag(S1_tot); % total reactive power of the primary [VAR]
+disp(strcat('Active power at the primary', num2str(P1_tot), '[W]'))
+disp(strcat('Reative power at the primary', num2str(Q1_tot), '[VAR]'))
 
 %% Power factor of the load
-phi_load = atan(X2/R2); % phase angle of the load
-PF_load = cos(phi_load); % power factor of the load
+V1_ph = V1/sqrt(3);
+Z3 = Z2_prime + Zload_prime;
+V2_ph = V1_ph *(1/Z2_prime + 1/Z3)^(-1)/(Z1 + (1/Z2_prime + 1/Z3)^(-1));
+I2 = V2_ph / Z3;
+VL = V2*Zload_prime/(Z2_prime + Zload_prime);
+SL = VL*conj(I2);
+PF_load = real(SL)/abs(SL);
+
+%phi_load = atan(X2/R2); % phase angle of the load
+%PF_load = cos(phi_load); % power factor of the load
 disp(strcat('The power factor of the load is ', num2str(PF_load)))
 
 %% Effiency of the transformer

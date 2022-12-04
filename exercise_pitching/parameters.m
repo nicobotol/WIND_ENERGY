@@ -17,9 +17,14 @@ P_rated = 10.64e6; % rated power (W)
 lambda_opt = 7.857; % optimal lambda
 cp_opt = 0.465; % optimal cp
 omega_max = 1.01; % maximum rotational speed (rad/s)
+velocity_pitch = [11.55:1:20]; % range of velocities where to compute the pitch
+velocity_item = size(velocity_pitch, 2);
 
 pitch_item = 50; % number of division for the pitch 
 pitch_range = [-deg2rad(20) deg2rad(20)];  % (rad) range in within look for picth angle 
+
+stall_lim = -1*pi/180;
+feather_lim = 4*pi/180;
 
 % first guess for a and a_prime
 a_guess = 0;
@@ -39,4 +44,5 @@ fake_zero = 1e-8; % thershold for exiting the loop
 velocity_reference = [4:1:25];
 pitch_reference = [2.751 1.966 0.896 0.000 0.000 0.000 0.000 0.000 4.502 7.266 9.292 10.958 12.499 13.896 15.200 16.432 17.618  18.758 19.860 20.927 21.963 22.975 ];
 
-
+font_size = 25; 
+line_size = 2;

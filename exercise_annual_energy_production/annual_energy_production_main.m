@@ -24,8 +24,8 @@ P_rated = 10.64e6; % (W)
 
 % wind speed and power
 V0_start = 5; % velocity where to start the weibull
-V0_stop = 7.5; % velocity where to stop the weibull 
-P0 = 2e6; % power in the range of velocity (W)
+V0_stop = 10; % velocity where to stop the weibull 
+P0 = 0.7e6; % power in the range of velocity (W)
 
 %%
 V0 = V0_start:0.1:V0_stop; % build the vector with wind velocity
@@ -34,16 +34,16 @@ P = P0*ones(1, size(V0, 2)); % build the vector with the power of each
 [AEO, CF] = Annual_Energy_Output(P, V0, P_rated, A_weibull, k_weibull);
 
 % In case of multiple power for multiple wind speed
-% V1 = 10:0.1:13; % build the vector with wind velocity
-% P1 = 2e6*ones(1, size(V1, 2)); % build the vector with the power of each 
-% % wind velocity (W)
-% [AEO1, CF1] = Annual_Energy_Output(P1, V1, P_rated, A_weibull, k_weibull);
-% 
-% V2 = 13:0.1:25; % build the vector with wind velocity
-% P2 = 3e6*ones(1, size(V2, 2)); % build the vector with the power of each 
-% % wind velocity (W)
-% [AEO2, CF2] = Annual_Energy_Output(P2, V2, P_rated, A_weibull, k_weibull);
-% AEO = AEO + AEO1 + AEO2; % sum the energy production in the three part
+V1 = 10:0.1:13; % build the vector with wind velocity
+P1 = 2e6*ones(1, size(V1, 2)); % build the vector with the power of each 
+% wind velocity (W)
+[AEO1, CF1] = Annual_Energy_Output(P1, V1, P_rated, A_weibull, k_weibull);
+
+V2 = 13:0.1:25; % build the vector with wind velocity
+P2 = 3e6*ones(1, size(V2, 2)); % build the vector with the power of each 
+% wind velocity (W)
+[AEO2, CF2] = Annual_Energy_Output(P2, V2, P_rated, A_weibull, k_weibull);
+AEO = AEO + AEO1 + AEO2; % sum the energy production in the three part
 
 disp(strcat('The total annula energy production is ', num2str(AEO/1e9), ...
   ' GWh'));

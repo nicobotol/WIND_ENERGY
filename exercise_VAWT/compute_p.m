@@ -10,7 +10,7 @@ Vnorm = (V0 - Wx)*sin(theta) - Wy*cos(theta);
 Vtan = (V0 - Wx)*cos(theta) + Wy*sin(theta) + omega*R;
 Vrel_sq = Vrel_x^2 + Vrel_y^2;
 %Vrel_sq = Vnorm^2 + Vtan^2;
-alpha = atan(Vnorm / Vtan); % (rad)
+alpha = atan(Vnorm / Vtan); % ange of attack (rad)
 alphadeg = alpha*180/pi;
 
 % cl = interp1(deg2rad(aoa), cl_data, alpha);
